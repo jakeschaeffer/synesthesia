@@ -28,12 +28,12 @@ export function generateVariants(baseHex: string, count: number = 6): string[] {
   if (!base) return [baseHex];
 
   const adjustments = [
-    { l: 0, c: 0, h: 12 },
-    { l: 0, c: 0, h: -12 },
-    { l: 0.07, c: 0, h: 0 },
-    { l: -0.07, c: 0, h: 0 },
-    { l: 0, c: 0.04, h: 0 },
-    { l: 0.04, c: -0.03, h: 6 },
+    { l: 0, c: 0, h: 25 },
+    { l: 0, c: 0, h: -25 },
+    { l: 0.12, c: 0, h: 0 },
+    { l: -0.12, c: 0, h: 0 },
+    { l: 0, c: 0.07, h: 0 },
+    { l: 0.06, c: -0.05, h: 12 },
   ];
 
   const variants: string[] = [];
