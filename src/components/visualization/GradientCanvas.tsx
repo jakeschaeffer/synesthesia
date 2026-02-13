@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
 import { useCanvasRenderer } from '../../hooks/useCanvasRenderer';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
+import { hexToSynColor } from '../../utils/colorUtils';
+
+const FALLBACK_PICKER_COLOR = hexToSynColor('#6f7182');
 
 export function GradientCanvas() {
   const canvasRef = useCanvasRenderer();
@@ -24,8 +27,7 @@ export function GradientCanvas() {
       if (/\s/.test(char)) return;
 
       const key = char.toLowerCase();
-      const color = colorMap[key];
-      if (!color) return;
+      const color = colorMap[key] ?? FALLBACK_PICKER_COLOR;
 
       openVariantModal(key, color, {
         x: e.clientX,

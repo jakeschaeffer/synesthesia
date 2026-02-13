@@ -1,5 +1,11 @@
+import { formatHex } from 'culori';
+import type { Oklch } from 'culori';
 import type { ColorMap } from '../types';
 import { hexToSynColor } from '../utils/colorUtils';
+
+export const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+export const DIGITS = '0123456789';
+export const ALPHANUMERIC_CHARS = `${LETTERS}${DIGITS}`.split('');
 
 const DEFAULT_HEX_BY_CHAR: Record<string, string> = {
   a: '#ff5fa2',
@@ -40,11 +46,25 @@ const DEFAULT_HEX_BY_CHAR: Record<string, string> = {
   9: '#000000',
 };
 
-function buildDefaultColorMap(): ColorMap {
-  return Object.entries(DEFAULT_HEX_BY_CHAR).reduce<ColorMap>((map, [char, hex]) => {
+export function buildColorMapFromHexEntries(hexByChar: Record<string, string>): ColorMap {
+  return Object.entries(hexByChar).reduce<ColorMap>((map, [char, hex]) => {
     map[char] = hexToSynColor(hex);
     return map;
   }, {});
 }
 
-export const DEFAULT_COLOR_MAP: ColorMap = buildDefaultColorMap();
+export function buildRainbowColorMap(): ColorMap {
+  const map: ColorMap = {};
+  const total = ALPHANUMERIC_CHARS.length;
+
+  for (let i = 0; i < total; i += 1) {
+    const hue = (i / total) * 360;
+    const color: Oklch = { mode: 'oklch', l: 0.7, c: 0.15, h: hue };
+    const hex = formatHex(color) ?? '#808080';
+    map[ALPHANUMERIC_CHARS[i]] = hexToSynColor(hex);
+  }
+
+  return map;
+}
+
+export const DEFAULT_COLOR_MAP: ColorMap = buildColorMapFromHexEntries(DEFAULT_HEX_BY_CHAR);

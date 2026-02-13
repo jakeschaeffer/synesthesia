@@ -6,6 +6,7 @@ const toOklch = converter('oklch');
 const toHsl = converter('hsl');
 
 function clamp(min: number, max: number, value: number): number {
+  if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 }
 
@@ -21,6 +22,16 @@ export function hexToSynColor(hex: string): SynColor {
     s: (hsl?.s ?? 0) * 100,
     l: (hsl?.l ?? 0) * 100,
   };
+}
+
+export function hslToHex(h: number, s: number, l: number): string {
+  const hex = formatHex({
+    mode: 'hsl',
+    h: clamp(0, 360, h),
+    s: clamp(0, 100, s) / 100,
+    l: clamp(0, 100, l) / 100,
+  });
+  return hex ?? '#808080';
 }
 
 export function generateVariants(baseHex: string, count: number = 6): string[] {
