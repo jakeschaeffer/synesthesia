@@ -6,6 +6,7 @@ const toOklch = converter('oklch');
 const toHsl = converter('hsl');
 
 function clamp(min: number, max: number, value: number): number {
+  if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 }
 

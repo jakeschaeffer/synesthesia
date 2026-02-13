@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SplitScreen } from './components/layout/SplitScreen';
 import { GradientCanvas } from './components/visualization/GradientCanvas';
 import { TextInputArea } from './components/input/TextInputArea';
@@ -6,11 +6,17 @@ import { GradientControls } from './components/controls/GradientControls';
 import { ProfileManager } from './components/profile/ProfileManager';
 import { ProfileLegendView } from './components/profile/ProfileLegendView';
 import { ColorVariantModal } from './components/color-picker/ColorVariantModal';
+import { useSynesthesiaStore } from './store/useSynesthesiaStore';
 
 type EditorTab = 'typing' | 'legend';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<EditorTab>('typing');
+  const ensureEmmaProfile = useSynesthesiaStore((s) => s.ensureEmmaProfile);
+
+  useEffect(() => {
+    ensureEmmaProfile();
+  }, [ensureEmmaProfile]);
 
   return (
     <>

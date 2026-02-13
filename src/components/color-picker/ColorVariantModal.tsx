@@ -4,8 +4,10 @@ import { hexToSynColor, hslToHex } from '../../utils/colorUtils';
 
 const MODAL_WIDTH = 360;
 const MODAL_HEIGHT = 360;
+const DEFAULT_PREVIEW_COLOR = hexToSynColor('#808080');
 
 function clamp(min: number, max: number, value: number): number {
+  if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 }
 
@@ -47,10 +49,12 @@ export function ColorVariantModal() {
     };
   }, [isOpen, closeWithSave]);
 
-  const hue = Math.round(currentColor?.h ?? 0);
-  const saturation = Math.round(currentColor?.s ?? 0);
-  const lightness = Math.round(currentColor?.l ?? 50);
-  const previewHex = currentColor?.hex ?? '#808080';
+  const resolvedColor =
+    currentColor?.hex ? hexToSynColor(currentColor.hex) : DEFAULT_PREVIEW_COLOR;
+  const hue = Math.round(clamp(0, 360, currentColor?.h ?? resolvedColor.h));
+  const saturation = Math.round(clamp(0, 100, currentColor?.s ?? resolvedColor.s));
+  const lightness = Math.round(clamp(0, 100, currentColor?.l ?? resolvedColor.l));
+  const previewHex = currentColor?.hex ?? resolvedColor.hex;
 
   const applyColor = useCallback(
     (nextHue: number, nextSaturation: number, nextLightness: number) => {

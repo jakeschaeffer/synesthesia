@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { SynesthesiaState, Profile } from '../types';
 import { DEFAULT_COLOR_MAP, buildRainbowColorMap } from '../constants/defaultColorMap';
+import { hexToSynColor } from '../utils/colorUtils';
 
 export const useSynesthesiaStore = create<SynesthesiaState>()(
   persist(
@@ -23,13 +24,14 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
       setColorForChar: (char, color) =>
         set((state) => {
           const normalized = char.toLowerCase();
+          const normalizedColor = hexToSynColor(color.hex);
           const shouldSyncVariantModal =
             state.variantModal.isOpen && state.variantModal.character === normalized;
 
           return {
-            colorMap: { ...state.colorMap, [normalized]: color },
+            colorMap: { ...state.colorMap, [normalized]: normalizedColor },
             variantModal: shouldSyncVariantModal
-              ? { ...state.variantModal, currentColor: color }
+              ? { ...state.variantModal, currentColor: normalizedColor }
               : state.variantModal,
           };
         }),
@@ -58,6 +60,27 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
           colorMap: {},
         }));
       },
+
+      ensureEmmaProfile: () =>
+        set((state) => {
+          const hasEmma = state.profiles.some(
+            (profile) => profile.name.trim().toLowerCase() === 'emma',
+          );
+          if (hasEmma) return state;
+
+          const now = new Date().toISOString();
+          const emmaProfile: Profile = {
+            id: crypto.randomUUID(),
+            name: 'Emma',
+            colorMap: { ...DEFAULT_COLOR_MAP },
+            createdAt: now,
+            updatedAt: now,
+          };
+
+          return {
+            profiles: [...state.profiles, emmaProfile],
+          };
+        }),
 
       assignRainbowColorMap: () =>
         set((state) => {
@@ -111,8 +134,8 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
         set({
           variantModal: {
             isOpen: true,
-            character: char,
-            currentColor: color,
+            character: char.toLowerCase(),
+            currentColor: hexToSynColor(color.hex),
             anchorPosition: position,
           },
         }),
