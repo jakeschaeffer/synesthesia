@@ -1,6 +1,5 @@
 import { memo, useCallback } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
-import { useLongPress } from '../../hooks/useLongPress';
 import type { SynColor } from '../../types';
 
 interface ColoredLetterProps {
@@ -15,10 +14,10 @@ export const ColoredLetter = memo(function ColoredLetter({ char, color }: Colore
   const effectiveColor = color ?? SPACE_COLOR;
   const isWhitespace = /\s/.test(char);
 
-  const handleLongPress = useCallback(
-    (e: React.PointerEvent) => {
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
       if (isWhitespace) return;
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      const rect = e.currentTarget.getBoundingClientRect();
       openVariantModal(char.toLowerCase(), effectiveColor, {
         x: rect.left + rect.width / 2,
         y: rect.top,
@@ -27,14 +26,9 @@ export const ColoredLetter = memo(function ColoredLetter({ char, color }: Colore
     [char, effectiveColor, openVariantModal, isWhitespace],
   );
 
-  const longPressHandlers = useLongPress({
-    onLongPress: handleLongPress,
-    threshold: 400,
-  });
-
   return (
     <span
-      {...longPressHandlers}
+      onClick={handleClick}
       className="inline-block cursor-pointer select-none transition-colors duration-75"
       style={{
         color: effectiveColor.hex,

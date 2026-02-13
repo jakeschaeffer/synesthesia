@@ -23,6 +23,16 @@ export function hexToSynColor(hex: string): SynColor {
   };
 }
 
+export function hslToHex(h: number, s: number, l: number): string {
+  const hex = formatHex({
+    mode: 'hsl',
+    h: clamp(0, 360, h),
+    s: clamp(0, 100, s) / 100,
+    l: clamp(0, 100, l) / 100,
+  });
+  return hex ?? '#808080';
+}
+
 export function generateVariants(baseHex: string, count: number = 6): string[] {
   const base = toOklch(baseHex);
   if (!base) return [baseHex];
