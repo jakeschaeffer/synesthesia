@@ -302,26 +302,32 @@ export function ProfileExportDialog({
   profileName,
   assignedCount,
 }: ProfileExportDialogProps) {
-  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const drawToCanvas = useCallback((canvas: HTMLCanvasElement | null) => {
+    canvasRef.current = canvas;
+    if (!canvas || !open) return;
+
+    const renderCanvas = renderProfileCanvas(colorMap, profileName, assignedCount);
+    canvas.width = renderCanvas.width;
+    canvas.height = renderCanvas.height;
+
+    const ctx = canvas.getContext('2d');
+    const renderCtx = renderCanvas.getContext('2d');
+    if (!ctx || !renderCtx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(renderCanvas, 0, 0);
+  }, [open, colorMap, profileName, assignedCount]);
 
   useEffect(() => {
     if (!open) return;
-    const container = canvasContainerRef.current;
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    const canvas = renderProfileCanvas(colorMap, profileName, assignedCount);
-    canvas.style.width = `${canvas.width / SCALE}px`;
-    canvas.style.height = `${canvas.height / SCALE}px`;
-    canvas.style.borderRadius = '12px';
-    container.appendChild(canvas);
-  }, [open, colorMap, profileName, assignedCount]);
+    drawToCanvas(canvasRef.current);
+  }, [open, colorMap, profileName, assignedCount, drawToCanvas]);
 
   const handleCopy = useCallback(async () => {
-    const container = canvasContainerRef.current;
-    const canvas = container?.querySelector('canvas');
+    const canvas = canvasRef.current;
     if (!canvas) return;
 
     try {
@@ -331,9 +337,11 @@ export function ProfileExportDialog({
           'image/png',
         );
       });
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob }),
-      ]);
+      if (navigator.clipboard?.write && typeof ClipboardItem !== 'undefined') {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob }),
+        ]);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -342,8 +350,7 @@ export function ProfileExportDialog({
   }, []);
 
   const handleSave = useCallback(() => {
-    const container = canvasContainerRef.current;
-    const canvas = container?.querySelector('canvas');
+    const canvas = canvasRef.current;
     if (!canvas) return;
 
     const link = document.createElement('a');
@@ -364,7 +371,12 @@ export function ProfileExportDialog({
             Preview and save your color profile as an image.
           </Dialog.Description>
 
-          <div ref={canvasContainerRef} className="mb-4 flex justify-center" />
+          <div className="mb-4 flex justify-center">
+            <canvas
+              ref={drawToCanvas}
+              className="block w-full max-w-[560px] h-auto rounded-xl"
+            />
+          </div>
 
           <div className="flex justify-end gap-2">
             <button
