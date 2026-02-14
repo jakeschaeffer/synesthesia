@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   ALPHANUMERIC_CHARS,
@@ -7,6 +7,7 @@ import {
 } from '../../constants/defaultColorMap';
 import { hexToSynColor } from '../../utils/colorUtils';
 import type { ColorMap } from '../../types';
+import { serializeProfileExport } from '../../utils/profileTransfer';
 
 const UNASSIGNED_COLOR = hexToSynColor('#2a2a3e');
 
@@ -303,7 +304,12 @@ export function ProfileExportDialog({
   assignedCount,
 }: ProfileExportDialogProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedImage, setCopiedImage] = useState(false);
+  const [copiedJson, setCopiedJson] = useState(false);
+  const jsonExportText = useMemo(
+    () => serializeProfileExport(profileName, colorMap),
+    [profileName, colorMap],
+  );
 
   const drawToCanvas = useCallback((canvas: HTMLCanvasElement | null) => {
     canvasRef.current = canvas;
@@ -326,6 +332,13 @@ export function ProfileExportDialog({
     drawToCanvas(canvasRef.current);
   }, [open, colorMap, profileName, assignedCount, drawToCanvas]);
 
+  useEffect(() => {
+    if (!open) {
+      setCopiedImage(false);
+      setCopiedJson(false);
+    }
+  }, [open]);
+
   const handleCopy = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -342,8 +355,8 @@ export function ProfileExportDialog({
           new ClipboardItem({ 'image/png': blob }),
         ]);
       }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedImage(true);
+      setTimeout(() => setCopiedImage(false), 2000);
     } catch {
       // Clipboard API may not be available in all contexts
     }
@@ -359,6 +372,27 @@ export function ProfileExportDialog({
     link.click();
   }, [profileName]);
 
+  const handleCopyJson = useCallback(async () => {
+    if (!navigator.clipboard?.writeText) return;
+    try {
+      await navigator.clipboard.writeText(jsonExportText);
+      setCopiedJson(true);
+      setTimeout(() => setCopiedJson(false), 2000);
+    } catch {
+      // Clipboard access may be blocked in some browser contexts
+    }
+  }, [jsonExportText]);
+
+  const handleSaveJson = useCallback(() => {
+    const blob = new Blob([jsonExportText], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${profileName.toLowerCase().replace(/\s+/g, '-')}-synesthesia-profile.json`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [jsonExportText, profileName]);
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -368,7 +402,7 @@ export function ProfileExportDialog({
             Export Synesthete Profile
           </Dialog.Title>
           <Dialog.Description className="text-[11px] text-white/45 mb-4">
-            Preview and save your color profile as an image.
+            Export this profile as image or import-compatible JSON legend.
           </Dialog.Description>
 
           <div className="mb-4 flex justify-center">
@@ -384,15 +418,42 @@ export function ProfileExportDialog({
               onClick={handleCopy}
               className="px-3 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors rounded-md"
             >
-              {copied ? 'Copied!' : 'Copy to Clipboard'}
+              {copiedImage ? 'Copied!' : 'Copy PNG'}
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="px-3 py-1.5 text-xs bg-white/10 text-white/80 hover:bg-white/15 transition-colors rounded-md"
             >
-              Save as PNG
+              Save PNG
             </button>
+          </div>
+
+          <div className="mt-4 border-t border-white/10 pt-4">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-white/45 mb-2">
+              Profile JSON
+            </div>
+            <textarea
+              readOnly
+              value={jsonExportText}
+              className="w-full h-40 resize-none rounded-lg border border-white/10 bg-black/20 text-[10px] leading-relaxed text-white/75 font-mono p-2 outline-none"
+            />
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCopyJson}
+                className="px-3 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors rounded-md"
+              >
+                {copiedJson ? 'Copied!' : 'Copy JSON'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveJson}
+                className="px-3 py-1.5 text-xs bg-white/10 text-white/80 hover:bg-white/15 transition-colors rounded-md"
+              >
+                Save JSON
+              </button>
+            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

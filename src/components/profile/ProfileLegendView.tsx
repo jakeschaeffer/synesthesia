@@ -25,7 +25,6 @@ export function ProfileLegendView() {
   const profiles = useSynesthesiaStore((s) => s.profiles);
   const activeProfileId = useSynesthesiaStore((s) => s.activeProfileId);
   const colorMap = useSynesthesiaStore((s) => s.colorMap);
-  const assignRainbowColorMap = useSynesthesiaStore((s) => s.assignRainbowColorMap);
   const openVariantModal = useSynesthesiaStore((s) => s.openVariantModal);
 
   const activeProfile = useMemo(
@@ -112,13 +111,6 @@ export function ProfileLegendView() {
                 className="px-3 py-2 text-xs rounded-xl border border-white/15 text-white/75 hover:text-white hover:border-white/30 transition-colors"
               >
                 Export Synesthete Profile
-              </button>
-              <button
-                type="button"
-                onClick={assignRainbowColorMap}
-                className="px-3 py-2 text-xs rounded-xl border border-cyan-200/25 bg-cyan-400/10 text-cyan-100/90 hover:bg-cyan-300/15 hover:border-cyan-200/40 transition-colors"
-              >
-                Assign Rainbow As Default
               </button>
             </div>
           </div>
