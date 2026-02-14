@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { SynesthesiaState, Profile } from '../types';
-import { DEFAULT_COLOR_MAP } from '../constants/defaultColorMap';
+import { DEFAULT_COLOR_MAP, buildRainbowColorMap } from '../constants/defaultColorMap';
+import { hexToSynColor } from '../utils/colorUtils';
 
 export const useSynesthesiaStore = create<SynesthesiaState>()(
   persist(
@@ -21,9 +22,19 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
       setText: (text) => set({ text }),
 
       setColorForChar: (char, color) =>
-        set((state) => ({
-          colorMap: { ...state.colorMap, [char.toLowerCase()]: color },
-        })),
+        set((state) => {
+          const normalized = char.toLowerCase();
+          const normalizedColor = hexToSynColor(color.hex);
+          const shouldSyncVariantModal =
+            state.variantModal.isOpen && state.variantModal.character === normalized;
+
+          return {
+            colorMap: { ...state.colorMap, [normalized]: normalizedColor },
+            variantModal: shouldSyncVariantModal
+              ? { ...state.variantModal, currentColor: normalizedColor }
+              : state.variantModal,
+          };
+        }),
 
       setBleed: (bleed) =>
         set((state) => ({
@@ -36,19 +47,62 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
         })),
 
       createProfile: (name) => {
-        const state = get();
         const newProfile: Profile = {
           id: crypto.randomUUID(),
           name,
-          colorMap: { ...state.colorMap },
+          colorMap: {},
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
         set((s) => ({
           profiles: [...s.profiles, newProfile],
           activeProfileId: newProfile.id,
+          colorMap: {},
         }));
       },
+
+      ensureEmmaProfile: () =>
+        set((state) => {
+          const hasEmma = state.profiles.some(
+            (profile) => profile.name.trim().toLowerCase() === 'emma',
+          );
+          if (hasEmma) return state;
+
+          const now = new Date().toISOString();
+          const emmaProfile: Profile = {
+            id: crypto.randomUUID(),
+            name: 'Emma',
+            colorMap: { ...DEFAULT_COLOR_MAP },
+            createdAt: now,
+            updatedAt: now,
+          };
+
+          return {
+            profiles: [...state.profiles, emmaProfile],
+          };
+        }),
+
+      assignRainbowColorMap: () =>
+        set((state) => {
+          const rainbow = buildRainbowColorMap();
+
+          if (!state.activeProfileId) {
+            return { colorMap: { ...rainbow } };
+          }
+
+          return {
+            colorMap: { ...rainbow },
+            profiles: state.profiles.map((profile) =>
+              profile.id === state.activeProfileId
+                ? {
+                    ...profile,
+                    colorMap: { ...rainbow },
+                    updatedAt: new Date().toISOString(),
+                  }
+                : profile,
+            ),
+          };
+        }),
 
       loadProfile: (profileId) => {
         const profile = get().profiles.find((p) => p.id === profileId);
@@ -80,8 +134,8 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
         set({
           variantModal: {
             isOpen: true,
-            character: char,
-            currentColor: color,
+            character: char.toLowerCase(),
+            currentColor: hexToSynColor(color.hex),
             anchorPosition: position,
           },
         }),

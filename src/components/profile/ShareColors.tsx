@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
+import { LETTERS, DIGITS } from '../../constants/defaultColorMap';
 import type { ColorMap } from '../../types';
 
 // iPhone vertical: 1170 x 2532 (logical 390x844 @3x)
@@ -30,8 +31,8 @@ function renderColorKey(canvas: HTMLCanvasElement, colorMap: ColorMap, profileNa
     ctx.fillText(profileName, CANVAS_W / 2, 220);
   }
 
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const digits = '0123456789';
+  const letters = LETTERS.toUpperCase();
+  const digits = DIGITS;
 
   const marginX = 80;
   const startY = 320;

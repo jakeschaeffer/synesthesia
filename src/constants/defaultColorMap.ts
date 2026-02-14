@@ -1,54 +1,70 @@
+import { formatHex } from 'culori';
+import type { Oklch } from 'culori';
 import type { ColorMap } from '../types';
 import { hexToSynColor } from '../utils/colorUtils';
 
-const COLORS: Record<string, string> = {
-  // Letters
-  a: '#E8819A', // pink
-  b: '#4A90D9', // blue
-  c: '#F5D033', // yellow
-  d: '#8B5E3C', // brown
-  e: '#4CAF50', // green
-  f: '#A0724E', // brown
-  g: '#5DAD5E', // green
-  h: '#7E6DAE', // greenish purple
-  i: '#EAEAEA', // white
-  j: '#8A9A7B', // greenish gray
-  k: '#9C27B0', // purple
-  l: '#F7D84A', // yellow
-  m: '#E53935', // red
-  n: '#F0E04A', // yellow
-  o: '#F5F5F5', // white
-  p: '#7B1FA2', // purple
-  q: '#9E9E9E', // grayish
-  r: '#D32F2F', // red
-  s: '#A8A8A8', // neutral gray (unspecified)
-  t: '#2196F3', // blue
-  u: '#E0E0E0', // white
-  v: '#B0B0B0', // neutral gray (unspecified)
-  w: '#C62828', // red
-  x: '#9446A8', // reddish blue / magenta
-  y: '#FFEB3B', // yellow
-  z: '#5E8E8E', // greenish purplish bluish / teal
+export const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+export const DIGITS = '0123456789';
+export const ALPHANUMERIC_CHARS = `${LETTERS}${DIGITS}`.split('');
 
-  // Digits
-  '0': '#C0C0C0', // neutral gray (unspecified)
-  '1': '#F0F0F0', // white
-  '2': '#43A047', // green
-  '3': '#8E4EAA', // purple
-  '4': '#7A3FAA', // purple
-  '5': '#FF9800', // orange
-  '6': '#1E88E5', // blue
-  '7': '#FDD835', // yellow
-  '8': '#B8B8B8', // neutral gray (unspecified)
-  '9': '#A0A0A0', // neutral gray (unspecified)
+const DEFAULT_HEX_BY_CHAR: Record<string, string> = {
+  a: '#ff5fa2',
+  b: '#1f6feb',
+  c: '#f6c945',
+  d: '#8b5e34',
+  e: '#2da44e',
+  f: '#8b5e34',
+  g: '#2da44e',
+  h: '#7b61a3',
+  i: '#ffffff',
+  j: '#7a8a7a',
+  k: '#6f2dbd',
+  l: '#f6c945',
+  m: '#d1242f',
+  n: '#f6c945',
+  o: '#ffffff',
+  p: '#6f2dbd',
+  q: '#8a8f98',
+  r: '#d1242f',
+  s: '#bdbdbd',
+  t: '#1f6feb',
+  u: '#ffffff',
+  v: '#bdbdbd',
+  w: '#d1242f',
+  x: '#4b0082',
+  y: '#f6c945',
+  z: '#5a7896',
+  0: '#ffffff',
+  1: '#ffffff',
+  2: '#2da44e',
+  3: '#6f2dbd',
+  4: '#7c3aed',
+  5: '#f28c28',
+  6: '#1f6feb',
+  7: '#f6c945',
+  8: '#8b5e34',
+  9: '#000000',
 };
 
-function buildColorMap(): ColorMap {
-  const map: ColorMap = {};
-  for (const [char, hex] of Object.entries(COLORS)) {
+export function buildColorMapFromHexEntries(hexByChar: Record<string, string>): ColorMap {
+  return Object.entries(hexByChar).reduce<ColorMap>((map, [char, hex]) => {
     map[char] = hexToSynColor(hex);
+    return map;
+  }, {});
+}
+
+export function buildRainbowColorMap(): ColorMap {
+  const map: ColorMap = {};
+  const total = ALPHANUMERIC_CHARS.length;
+
+  for (let i = 0; i < total; i += 1) {
+    const hue = (i / total) * 360;
+    const color: Oklch = { mode: 'oklch', l: 0.7, c: 0.15, h: hue };
+    const hex = formatHex(color) ?? '#808080';
+    map[ALPHANUMERIC_CHARS[i]] = hexToSynColor(hex);
   }
+
   return map;
 }
 
-export const DEFAULT_COLOR_MAP: ColorMap = buildColorMap();
+export const DEFAULT_COLOR_MAP: ColorMap = buildColorMapFromHexEntries(DEFAULT_HEX_BY_CHAR);

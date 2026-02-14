@@ -11,7 +11,7 @@ export function SplitScreen({ top, bottom }: SplitScreenProps) {
       <div className="h-1/2 min-h-0 relative">
         {top}
       </div>
-      <div className="h-1/2 min-h-0 flex flex-col overflow-y-auto border-t border-white/5">
+      <div className="h-1/2 min-h-0 flex flex-col overflow-hidden border-t border-white/5">
         {bottom}
       </div>
     </div>

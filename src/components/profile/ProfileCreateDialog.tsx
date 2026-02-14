@@ -5,9 +5,14 @@ import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 interface ProfileCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onProfileCreated?: () => void;
 }
 
-export function ProfileCreateDialog({ open, onOpenChange }: ProfileCreateDialogProps) {
+export function ProfileCreateDialog({
+  open,
+  onOpenChange,
+  onProfileCreated,
+}: ProfileCreateDialogProps) {
   const [name, setName] = useState('');
   const createProfile = useSynesthesiaStore((s) => s.createProfile);
 
@@ -15,9 +20,10 @@ export function ProfileCreateDialog({ open, onOpenChange }: ProfileCreateDialogP
     const trimmed = name.trim();
     if (!trimmed) return;
     createProfile(trimmed);
+    onProfileCreated?.();
     setName('');
     onOpenChange(false);
-  }, [name, createProfile, onOpenChange]);
+  }, [name, createProfile, onOpenChange, onProfileCreated]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -32,8 +38,11 @@ export function ProfileCreateDialog({ open, onOpenChange }: ProfileCreateDialogP
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#1a1a2e] border border-white/10 rounded-xl p-5 z-50 w-80 shadow-2xl">
           <Dialog.Title className="text-white/80 text-sm font-medium mb-3">
-            Save Color Profile
+            Create Empty Profile
           </Dialog.Title>
+          <p className="text-[11px] text-white/45 mb-3">
+            New profiles start with no assigned colors.
+          </p>
           <input
             autoFocus
             type="text"
@@ -55,7 +64,7 @@ export function ProfileCreateDialog({ open, onOpenChange }: ProfileCreateDialogP
               disabled={!name.trim()}
               className="px-3 py-1.5 text-xs bg-white/10 text-white/80 hover:bg-white/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-md"
             >
-              Save
+              Create
             </button>
           </div>
         </Dialog.Content>
