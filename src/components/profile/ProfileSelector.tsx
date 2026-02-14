@@ -30,7 +30,7 @@ export function ProfileSelector({ onCreateNew }: ProfileSelectorProps) {
     <select
       value={activeProfileId ?? ''}
       onChange={handleChange}
-      className="bg-white/5 text-white/80 text-xs border border-white/10 rounded-md px-2 py-1.5 outline-none focus:border-white/25 transition-colors cursor-pointer"
+      className="w-full min-w-0 bg-white/5 text-white/80 text-xs border border-white/10 rounded-md px-2 py-1.5 outline-none focus:border-white/25 transition-colors cursor-pointer"
     >
       <option value="" className="bg-[#1a1a2e]">
         Select profile...

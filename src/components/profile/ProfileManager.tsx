@@ -33,12 +33,14 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-t border-white/5">
-      <span className="text-[10px] text-white/30 uppercase tracking-wider mr-1">
+    <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-t border-white/5">
+      <span className="text-[10px] text-white/30 uppercase tracking-wider mr-1 shrink-0">
         Profile
       </span>
 
-      <ProfileSelector onCreateNew={handleOpenCreateDialog} />
+      <div className="min-w-[150px] flex-1">
+        <ProfileSelector onCreateNew={handleOpenCreateDialog} />
+      </div>
 
       {activeProfile && (
         <>
@@ -61,7 +63,7 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
 
       <button
         onClick={handleOpenCreateDialog}
-        className="px-2 py-1 text-[10px] text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 rounded transition-colors ml-auto"
+        className="px-2 py-1 text-[10px] text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 rounded transition-colors ml-0 sm:ml-auto"
       >
         + New Profile
       </button>
