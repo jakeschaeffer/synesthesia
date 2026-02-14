@@ -34,3 +34,10 @@ html, body, #root {
 textarea::placeholder {
   color: rgba(255, 255, 255, 0.15);
 }
+
+/* Suppress selection highlight on the invisible textarea so it doesn't
+   appear misaligned from the colored letter overlay */
+textarea.syn-input::selection {
+  background: transparent;
+  color: transparent;
+}

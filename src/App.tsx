@@ -1,8 +1,6 @@
 import { SplitScreen } from './components/layout/SplitScreen';
 import { GradientCanvas } from './components/visualization/GradientCanvas';
-import { TextInputArea } from './components/input/TextInputArea';
-import { GradientControls } from './components/controls/GradientControls';
-import { ProfileManager } from './components/profile/ProfileManager';
+import { BottomPanel } from './components/controls/BottomPanel';
 import { ColorVariantModal } from './components/color-picker/ColorVariantModal';
 
 export default function App() {
@@ -10,13 +8,7 @@ export default function App() {
     <>
       <SplitScreen
         top={<GradientCanvas />}
-        bottom={
-          <>
-            <TextInputArea />
-            <GradientControls />
-            <ProfileManager />
-          </>
-        }
+        bottom={<BottomPanel />}
       />
       <ColorVariantModal />
     </>

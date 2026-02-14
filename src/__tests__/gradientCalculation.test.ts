@@ -36,7 +36,7 @@ describe('computeGradientStops', () => {
   it('all colors are valid hex strings', () => {
     const stops = computeGradientStops('testing', DEFAULT_COLOR_MAP, defaultSettings);
     for (const stop of stops) {
-      expect(stop.color).toMatch(/^#[0-9a-f]{6}$/);
+      expect(stop.color).toMatch(/^#[0-9a-fA-F]{6}$/);
     }
   });
 

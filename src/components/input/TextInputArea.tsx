@@ -22,7 +22,7 @@ export function TextInputArea() {
         ref={textareaRef}
         value={text}
         onChange={handleChange}
-        className="absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-white/50 outline-none px-8 py-6 font-mono text-3xl z-10 text-center"
+        className="syn-input absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-white/50 outline-none px-8 py-6 font-mono text-3xl z-10 text-center"
         placeholder=""
         spellCheck={false}
         autoComplete="off"
