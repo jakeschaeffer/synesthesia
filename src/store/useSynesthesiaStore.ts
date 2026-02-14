@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { SynesthesiaState, Profile } from '../types';
 import { DEFAULT_COLOR_MAP, buildRainbowColorMap } from '../constants/defaultColorMap';
-import { hexToSynColor } from '../utils/colorUtils';
 
 export const useSynesthesiaStore = create<SynesthesiaState>()(
   persist(
@@ -24,14 +23,13 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
       setColorForChar: (char, color) =>
         set((state) => {
           const normalized = char.toLowerCase();
-          const normalizedColor = hexToSynColor(color.hex);
           const shouldSyncVariantModal =
             state.variantModal.isOpen && state.variantModal.character === normalized;
 
           return {
-            colorMap: { ...state.colorMap, [normalized]: normalizedColor },
+            colorMap: { ...state.colorMap, [normalized]: color },
             variantModal: shouldSyncVariantModal
-              ? { ...state.variantModal, currentColor: normalizedColor }
+              ? { ...state.variantModal, currentColor: color }
               : state.variantModal,
           };
         }),
@@ -135,7 +133,7 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
           variantModal: {
             isOpen: true,
             character: char.toLowerCase(),
-            currentColor: hexToSynColor(color.hex),
+            currentColor: color,
             anchorPosition: position,
           },
         }),
