@@ -1,14 +1,18 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 import { ColoredLetter } from './ColoredLetter';
+import { ShareWordColorDialog } from '../share/ShareWordColorDialog';
 
 export function TextInputArea() {
   const text = useSynesthesiaStore((s) => s.text);
   const setText = useSynesthesiaStore((s) => s.setText);
   const colorMap = useSynesthesiaStore((s) => s.colorMap);
+  const gradientSettings = useSynesthesiaStore((s) => s.gradientSettings);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const sharedTextLayoutClasses =
     'absolute inset-0 w-full h-full px-8 py-6 font-mono text-3xl leading-9 text-center whitespace-pre-wrap break-words';
+  const [shareOpen, setShareOpen] = useState(false);
+  const canShare = useMemo(() => text.trim().length > 0, [text]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -47,6 +51,22 @@ export function TextInputArea() {
           </span>
         ))}
       </div>
+
+      <button
+        onClick={() => setShareOpen(true)}
+        disabled={!canShare}
+        className="absolute right-4 bottom-3 z-30 px-2.5 py-1.5 text-[10px] text-white/45 hover:text-white/75 bg-white/5 hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed rounded transition-colors"
+      >
+        Share word/color pair
+      </button>
+
+      <ShareWordColorDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        text={text}
+        colorMap={colorMap}
+        gradientSettings={gradientSettings}
+      />
     </div>
   );
 }

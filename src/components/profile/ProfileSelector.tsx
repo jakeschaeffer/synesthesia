@@ -1,21 +1,30 @@
 import { useCallback } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 
-export function ProfileSelector() {
+interface ProfileSelectorProps {
+  onCreateNew: () => void;
+}
+
+const NEW_PROFILE_OPTION = '__new__';
+
+export function ProfileSelector({ onCreateNew }: ProfileSelectorProps) {
   const profiles = useSynesthesiaStore((s) => s.profiles);
   const activeProfileId = useSynesthesiaStore((s) => s.activeProfileId);
   const loadProfile = useSynesthesiaStore((s) => s.loadProfile);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      if (e.target.value) {
-        loadProfile(e.target.value);
+      const value = e.target.value;
+      if (value === NEW_PROFILE_OPTION) {
+        onCreateNew();
+        return;
+      }
+      if (value) {
+        loadProfile(value);
       }
     },
-    [loadProfile],
+    [loadProfile, onCreateNew],
   );
-
-  if (profiles.length === 0) return null;
 
   return (
     <select
@@ -25,6 +34,9 @@ export function ProfileSelector() {
     >
       <option value="" className="bg-[#1a1a2e]">
         Select profile...
+      </option>
+      <option value={NEW_PROFILE_OPTION} className="bg-[#1a1a2e]">
+        New profile
       </option>
       {profiles.map((p) => (
         <option key={p.id} value={p.id} className="bg-[#1a1a2e]">

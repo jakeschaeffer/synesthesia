@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
+import { buildRainbowColorMap } from '../../constants/defaultColorMap';
 
 interface ProfileCreateDialogProps {
   open: boolean;
@@ -16,10 +17,10 @@ export function ProfileCreateDialog({
   const [name, setName] = useState('');
   const createProfile = useSynesthesiaStore((s) => s.createProfile);
 
-  const handleCreate = useCallback(() => {
+  const handleCreate = useCallback((useRainbow: boolean) => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    createProfile(trimmed);
+    createProfile(trimmed, useRainbow ? buildRainbowColorMap() : undefined);
     onProfileCreated?.();
     setName('');
     onOpenChange(false);
@@ -27,7 +28,7 @@ export function ProfileCreateDialog({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') handleCreate();
+      if (e.key === 'Enter') handleCreate(false);
     },
     [handleCreate],
   );
@@ -60,7 +61,14 @@ export function ProfileCreateDialog({
               Cancel
             </button>
             <button
-              onClick={handleCreate}
+              onClick={() => handleCreate(true)}
+              disabled={!name.trim()}
+              className="px-3 py-1.5 text-xs bg-white/8 text-white/70 hover:bg-white/12 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-md"
+            >
+              Assign Rainbow
+            </button>
+            <button
+              onClick={() => handleCreate(false)}
               disabled={!name.trim()}
               className="px-3 py-1.5 text-xs bg-white/10 text-white/80 hover:bg-white/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-md"
             >

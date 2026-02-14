@@ -28,13 +28,17 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
     }
   }, [activeProfileId, updateActiveProfile]);
 
+  const handleOpenCreateDialog = useCallback(() => {
+    setDialogOpen(true);
+  }, []);
+
   return (
     <div className="flex items-center gap-2 px-4 py-2 border-t border-white/5">
       <span className="text-[10px] text-white/30 uppercase tracking-wider mr-1">
         Profile
       </span>
 
-      <ProfileSelector />
+      <ProfileSelector onCreateNew={handleOpenCreateDialog} />
 
       {activeProfile && (
         <>
@@ -56,7 +60,7 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
       )}
 
       <button
-        onClick={() => setDialogOpen(true)}
+        onClick={handleOpenCreateDialog}
         className="px-2 py-1 text-[10px] text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 rounded transition-colors ml-auto"
       >
         + New Profile

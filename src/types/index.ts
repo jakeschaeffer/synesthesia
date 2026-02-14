@@ -46,7 +46,7 @@ export interface SynesthesiaState {
   setColorForChar: (char: string, color: SynColor) => void;
   setBleed: (bleed: number) => void;
   setWordMix: (wordMix: number) => void;
-  createProfile: (name: string) => void;
+  createProfile: (name: string, colorMapOverride?: ColorMap) => void;
   ensureEmmaProfile: () => void;
   assignRainbowColorMap: () => void;
   loadProfile: (profileId: string) => void;

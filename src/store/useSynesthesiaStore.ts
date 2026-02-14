@@ -1,13 +1,19 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { SynesthesiaState, Profile } from '../types';
+import type { SynesthesiaState, Profile, ColorMap } from '../types';
 import { DEFAULT_COLOR_MAP, buildRainbowColorMap } from '../constants/defaultColorMap';
+
+function cloneColorMap(map: ColorMap): ColorMap {
+  return Object.fromEntries(
+    Object.entries(map).map(([key, value]) => [key, { ...value }]),
+  );
+}
 
 export const useSynesthesiaStore = create<SynesthesiaState>()(
   persist(
     (set, get) => ({
       text: '',
-      colorMap: { ...DEFAULT_COLOR_MAP },
+      colorMap: cloneColorMap(DEFAULT_COLOR_MAP),
       activeProfileId: null,
       profiles: [],
       gradientSettings: { bleed: 0.5, wordMix: 0.0 },
@@ -44,18 +50,21 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
           gradientSettings: { ...state.gradientSettings, wordMix },
         })),
 
-      createProfile: (name) => {
+      createProfile: (name, colorMapOverride) => {
+        const profileColors: ColorMap = colorMapOverride
+          ? cloneColorMap(colorMapOverride)
+          : {};
         const newProfile: Profile = {
           id: crypto.randomUUID(),
           name,
-          colorMap: {},
+          colorMap: profileColors,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
         set((s) => ({
           profiles: [...s.profiles, newProfile],
           activeProfileId: newProfile.id,
-          colorMap: {},
+          colorMap: cloneColorMap(profileColors),
         }));
       },
 
@@ -105,7 +114,7 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
       loadProfile: (profileId) => {
         const profile = get().profiles.find((p) => p.id === profileId);
         if (profile) {
-          set({ colorMap: { ...profile.colorMap }, activeProfileId: profileId });
+          set({ colorMap: cloneColorMap(profile.colorMap), activeProfileId: profileId });
         }
       },
 
@@ -122,7 +131,11 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
           return {
             profiles: state.profiles.map((p) =>
               p.id === state.activeProfileId
-                ? { ...p, colorMap: { ...state.colorMap }, updatedAt: new Date().toISOString() }
+                ? {
+                    ...p,
+                    colorMap: cloneColorMap(state.colorMap),
+                    updatedAt: new Date().toISOString(),
+                  }
                 : p,
             ),
           };
