@@ -60,7 +60,12 @@ export function ColorVariantModal() {
     (nextHue: number, nextSaturation: number, nextLightness: number) => {
       if (!character || !isOpen) return;
       const nextHex = hslToHex(nextHue, nextSaturation, nextLightness);
-      setColorForChar(character, hexToSynColor(nextHex));
+      setColorForChar(character, {
+        hex: nextHex,
+        h: nextHue,
+        s: nextSaturation,
+        l: nextLightness,
+      });
     },
     [character, isOpen, setColorForChar],
   );

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   ALPHANUMERIC_CHARS,
   DIGITS,
@@ -6,6 +6,7 @@ import {
 } from '../../constants/defaultColorMap';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 import { hexToSynColor } from '../../utils/colorUtils';
+import { ProfileExportDialog } from './ProfileExportDialog';
 
 const UNASSIGNED_COLOR = hexToSynColor('#2a2a3e');
 
@@ -36,6 +37,8 @@ export function ProfileLegendView() {
     () => ALPHANUMERIC_CHARS.filter((char) => Boolean(colorMap[char])).length,
     [colorMap],
   );
+
+  const [exportOpen, setExportOpen] = useState(false);
 
   const handleCellClick = useCallback(
     (char: string, e: React.MouseEvent<HTMLButtonElement>) => {
@@ -102,13 +105,22 @@ export function ProfileLegendView() {
                 {assignedCount}/{ALPHANUMERIC_CHARS.length} symbols assigned.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={assignRainbowColorMap}
-              className="px-3 py-2 text-xs rounded-xl border border-cyan-200/25 bg-cyan-400/10 text-cyan-100/90 hover:bg-cyan-300/15 hover:border-cyan-200/40 transition-colors"
-            >
-              Assign Rainbow As Default
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setExportOpen(true)}
+                className="px-3 py-2 text-xs rounded-xl border border-white/15 text-white/75 hover:text-white hover:border-white/30 transition-colors"
+              >
+                Export Synesthete Profile
+              </button>
+              <button
+                type="button"
+                onClick={assignRainbowColorMap}
+                className="px-3 py-2 text-xs rounded-xl border border-cyan-200/25 bg-cyan-400/10 text-cyan-100/90 hover:bg-cyan-300/15 hover:border-cyan-200/40 transition-colors"
+              >
+                Assign Rainbow As Default
+              </button>
+            </div>
           </div>
         </div>
 
@@ -128,6 +140,14 @@ export function ProfileLegendView() {
           </section>
         </div>
       </div>
+
+      <ProfileExportDialog
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        colorMap={colorMap}
+        profileName={activeProfile?.name ?? 'Untitled'}
+        assignedCount={assignedCount}
+      />
     </section>
   );
 }
