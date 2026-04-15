@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 import { ProfileSelector } from './ProfileSelector';
 import { ProfileCreateDialog } from './ProfileCreateDialog';
+import { Toast } from '../feedback/Toast';
 
 interface ProfileManagerProps {
   onProfileCreated?: () => void;
@@ -9,6 +10,7 @@ interface ProfileManagerProps {
 
 export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; undo?: () => void } | null>(null);
   const activeProfileId = useSynesthesiaStore((s) => s.activeProfileId);
   const profiles = useSynesthesiaStore((s) => s.profiles);
   const deleteProfile = useSynesthesiaStore((s) => s.deleteProfile);
@@ -17,14 +19,26 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
   const handleDelete = useCallback(() => {
-    if (activeProfileId) {
-      deleteProfile(activeProfileId);
-    }
-  }, [activeProfileId, deleteProfile]);
+    if (!activeProfileId) return;
+    const deletedProfile = profiles.find((p) => p.id === activeProfileId);
+    if (!deletedProfile) return;
+
+    deleteProfile(activeProfileId);
+    setToast({
+      message: `"${deletedProfile.name}" deleted`,
+      undo: () => {
+        useSynesthesiaStore.getState().createProfile(
+          deletedProfile.name,
+          deletedProfile.colorMap,
+        );
+      },
+    });
+  }, [activeProfileId, profiles, deleteProfile]);
 
   const handleSave = useCallback(() => {
     if (activeProfileId) {
       updateActiveProfile();
+      setToast({ message: 'Profile saved' });
     }
   }, [activeProfileId, updateActiveProfile]);
 
@@ -34,7 +48,7 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-t border-white/5">
-      <span className="text-[10px] text-white/30 uppercase tracking-wider mr-1 shrink-0">
+      <span className="text-xs text-white/50 uppercase tracking-wider mr-1 shrink-0">
         Profile
       </span>
 
@@ -46,14 +60,14 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
         <>
           <button
             onClick={handleSave}
-            className="px-2 py-1 text-[10px] text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 rounded transition-colors"
+            className="px-3 py-2 text-xs text-white/60 hover:text-white/80 bg-white/5 hover:bg-white/10 rounded transition-colors"
             title="Save current colors to this profile"
           >
-            Update
+            Save
           </button>
           <button
             onClick={handleDelete}
-            className="px-2 py-1 text-[10px] text-red-400/50 hover:text-red-400/80 bg-white/5 hover:bg-red-400/10 rounded transition-colors"
+            className="px-3 py-2 text-xs text-red-400/60 hover:text-red-400/90 bg-white/5 hover:bg-red-400/10 rounded transition-colors"
             title="Delete this profile"
           >
             Delete
@@ -63,7 +77,7 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
 
       <button
         onClick={handleOpenCreateDialog}
-        className="px-2 py-1 text-[10px] text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 rounded transition-colors ml-0 sm:ml-auto"
+        className="px-3 py-2 text-xs text-white/60 hover:text-white/80 bg-white/5 hover:bg-white/10 rounded transition-colors ml-0 sm:ml-auto"
       >
         + New Profile
       </button>
@@ -73,6 +87,14 @@ export function ProfileManager({ onProfileCreated }: ProfileManagerProps) {
         onOpenChange={setDialogOpen}
         onProfileCreated={onProfileCreated}
       />
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          onUndo={toast.undo}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
