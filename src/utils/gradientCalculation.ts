@@ -1,7 +1,6 @@
 import type { ColorMap, GradientSettings, GradientStop, SynColor } from '../types';
 import { averageColors, lerpColor } from './colorUtils';
-
-const SPACE_COLOR: SynColor = { hex: '#2a2a3e', h: 240, s: 20, l: 20 };
+import { SPACE_COLOR } from '../constants/spaceColor';
 
 interface WordSegment {
   chars: string[];
