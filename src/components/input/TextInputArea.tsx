@@ -1,7 +1,9 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
 import { ColoredLetter } from './ColoredLetter';
 import { ShareWordColorDialog } from '../share/ShareWordColorDialog';
+
+const HINT_STORAGE_KEY = 'synesthesia-color-hint-shown';
 
 export function TextInputArea() {
   const text = useSynesthesiaStore((s) => s.text);
@@ -12,7 +14,21 @@ export function TextInputArea() {
   const sharedTextLayoutClasses =
     'absolute inset-0 w-full h-full px-8 py-6 font-mono text-3xl leading-9 text-center whitespace-pre-wrap break-words';
   const [shareOpen, setShareOpen] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const canShare = useMemo(() => text.trim().length > 0, [text]);
+
+  // Show first-use tooltip when user types 3+ non-space characters
+  useEffect(() => {
+    const nonSpaceLen = text.replace(/\s/g, '').length;
+    if (nonSpaceLen >= 3 && !localStorage.getItem(HINT_STORAGE_KEY)) {
+      setShowHint(true);
+      const timer = setTimeout(() => {
+        setShowHint(false);
+        localStorage.setItem(HINT_STORAGE_KEY, '1');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [text]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -51,6 +67,13 @@ export function TextInputArea() {
           </span>
         ))}
       </div>
+
+      {/* First-use tooltip */}
+      {showHint && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-2 bg-[#1a1a2e] border border-white/10 rounded-lg text-xs text-white/70 shadow-lg animate-pulse">
+          Click a letter to change its color
+        </div>
+      )}
 
       <button
         onClick={() => setShareOpen(true)}
