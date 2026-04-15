@@ -147,11 +147,9 @@ export function ColorVariantModal() {
             onChange={handleHueChange}
             onPointerUp={updateActiveProfile}
             onKeyUp={updateActiveProfile}
-            className="w-full mt-1"
+            className="w-full mt-1 color-slider"
             style={{
-              accentColor: '#f3f3f3',
-              background:
-                'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+              background: `linear-gradient(to right, hsl(0 ${saturation}% ${lightness}%), hsl(60 ${saturation}% ${lightness}%), hsl(120 ${saturation}% ${lightness}%), hsl(180 ${saturation}% ${lightness}%), hsl(240 ${saturation}% ${lightness}%), hsl(300 ${saturation}% ${lightness}%), hsl(360 ${saturation}% ${lightness}%))`,
             }}
           />
         </label>
@@ -168,9 +166,8 @@ export function ColorVariantModal() {
             onChange={handleSaturationChange}
             onPointerUp={updateActiveProfile}
             onKeyUp={updateActiveProfile}
-            className="w-full mt-1"
+            className="w-full mt-1 color-slider"
             style={{
-              accentColor: '#f3f3f3',
               background: `linear-gradient(to right, hsl(${hue} 0% ${lightness}%), hsl(${hue} 100% ${lightness}%))`,
             }}
           />
@@ -188,10 +185,9 @@ export function ColorVariantModal() {
             onChange={handleLightnessChange}
             onPointerUp={updateActiveProfile}
             onKeyUp={updateActiveProfile}
-            className="w-full mt-1"
+            className="w-full mt-1 color-slider"
             style={{
-              accentColor: '#f3f3f3',
-              background: `linear-gradient(to right, #000000, hsl(${hue} ${saturation}% 50%), #ffffff)`,
+              background: `linear-gradient(to right, hsl(${hue} ${saturation}% 0%), hsl(${hue} ${saturation}% 50%), hsl(${hue} ${saturation}% 100%))`,
             }}
           />
         </label>
