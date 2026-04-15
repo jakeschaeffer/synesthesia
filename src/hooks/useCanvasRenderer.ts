@@ -39,8 +39,18 @@ export function useCanvasRenderer() {
   }, [draw]);
 
   useEffect(() => {
-    // Subscribe to relevant store changes
-    const unsubscribe = useSynesthesiaStore.subscribe(scheduleDraw);
+    // Track previous values to only redraw when canvas-relevant state changes
+    let prev = useSynesthesiaStore.getState();
+    const unsubscribe = useSynesthesiaStore.subscribe((state) => {
+      if (
+        state.text !== prev.text ||
+        state.colorMap !== prev.colorMap ||
+        state.gradientSettings !== prev.gradientSettings
+      ) {
+        scheduleDraw();
+      }
+      prev = state;
+    });
 
     // Initial draw
     draw();
