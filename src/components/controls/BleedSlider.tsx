@@ -11,7 +11,7 @@ export function BleedSlider() {
         <label className="text-xs text-white/50 uppercase tracking-wider">
           Color Bleed
         </label>
-        <span className="text-xs text-white/30 tabular-nums">
+        <span className="text-xs text-white/50 tabular-nums">
           {Math.round(bleed * 100)}%
         </span>
       </div>
@@ -26,9 +26,9 @@ export function BleedSlider() {
         <Slider.Track className="bg-white/10 relative grow rounded-full h-1.5">
           <Slider.Range className="absolute bg-white/25 rounded-full h-full" />
         </Slider.Track>
-        <Slider.Thumb className="block w-4 h-4 bg-white rounded-full shadow-md hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/30 transition-colors" />
+        <Slider.Thumb className="block w-5 h-5 bg-white rounded-full shadow-md hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/30 transition-colors" />
       </Slider.Root>
-      <div className="flex justify-between text-[10px] text-white/20">
+      <div className="flex justify-between text-xs text-white/40">
         <span>Sharp</span>
         <span>Smooth</span>
       </div>
