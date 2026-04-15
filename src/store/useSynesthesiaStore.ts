@@ -51,9 +51,8 @@ export const useSynesthesiaStore = create<SynesthesiaState>()(
         })),
 
       createProfile: (name, colorMapOverride) => {
-        const profileColors: ColorMap = colorMapOverride
-          ? cloneColorMap(colorMapOverride)
-          : {};
+        const state = get();
+        const profileColors = cloneColorMap(colorMapOverride ?? state.colorMap);
         const newProfile: Profile = {
           id: crypto.randomUUID(),
           name,
