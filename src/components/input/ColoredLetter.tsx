@@ -1,13 +1,12 @@
 import { memo, useCallback } from 'react';
 import { useSynesthesiaStore } from '../../store/useSynesthesiaStore';
+import { SPACE_COLOR } from '../../constants/spaceColor';
 import type { SynColor } from '../../types';
 
 interface ColoredLetterProps {
   char: string;
   color: SynColor | undefined;
 }
-
-const SPACE_COLOR: SynColor = { hex: '#2a2a3e', h: 240, s: 20, l: 20 };
 
 export const ColoredLetter = memo(function ColoredLetter({ char, color }: ColoredLetterProps) {
   const openVariantModal = useSynesthesiaStore((s) => s.openVariantModal);
@@ -29,7 +28,11 @@ export const ColoredLetter = memo(function ColoredLetter({ char, color }: Colore
   return (
     <span
       onClick={handleClick}
-      className="inline-block cursor-pointer select-none transition-colors duration-75"
+      className={`inline-block select-none transition-all duration-75 ${
+        isWhitespace
+          ? ''
+          : 'cursor-pointer hover:scale-110 hover:drop-shadow-[0_0_6px_currentColor]'
+      }`}
       style={{
         color: effectiveColor.hex,
         minWidth: isWhitespace ? '0.35em' : undefined,

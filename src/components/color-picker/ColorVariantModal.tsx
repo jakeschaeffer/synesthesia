@@ -107,6 +107,8 @@ export function ColorVariantModal() {
   return (
     <div
       ref={modalRef}
+      role="dialog"
+      aria-label={`Change color for letter ${character.toUpperCase()}`}
       className="fixed z-50 w-[360px] bg-[#101620]/95 border border-white/10 rounded-2xl shadow-2xl p-4 backdrop-blur-lg"
       style={{ left, top }}
     >
