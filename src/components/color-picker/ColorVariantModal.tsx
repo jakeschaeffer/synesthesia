@@ -98,11 +98,13 @@ export function ColorVariantModal() {
     window.innerWidth - MODAL_WIDTH - 8,
     anchorPosition.x - MODAL_WIDTH / 2,
   );
-  const top = clamp(
-    8,
-    window.innerHeight - MODAL_HEIGHT - 8,
-    anchorPosition.y + 10,
-  );
+
+  // Place below the anchor if there's room, otherwise flip above
+  const spaceBelow = window.innerHeight - anchorPosition.y - 10;
+  const top =
+    spaceBelow >= MODAL_HEIGHT + 8
+      ? clamp(8, window.innerHeight - MODAL_HEIGHT - 8, anchorPosition.y + 10)
+      : clamp(8, window.innerHeight - MODAL_HEIGHT - 8, anchorPosition.y - MODAL_HEIGHT - 10);
 
   return (
     <div

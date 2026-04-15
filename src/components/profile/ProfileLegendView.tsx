@@ -67,15 +67,12 @@ export function ProfileLegendView() {
               onClick={(e) => handleCellClick(char, e)}
               className="group rounded-xl border border-white/10 bg-white/[0.03] px-2 py-2 text-left hover:border-white/25 hover:bg-white/[0.06] transition-colors"
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="mb-1">
                 <span
                   className="text-lg font-semibold"
                   style={{ color: swatch.hex }}
                 >
                   {char.toUpperCase()}
-                </span>
-                <span className="text-[10px] text-white/40">
-                  {color ? 'set' : 'empty'}
                 </span>
               </div>
               <div className="h-2 rounded-full mb-1 border border-black/10" style={{ background: swatch.hex }} />
