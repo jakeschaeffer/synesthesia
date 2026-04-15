@@ -129,11 +129,7 @@ export function ShareWordColorDialog({
             </button>
           </div>
 
-<<<<<<< HEAD
           <p className="min-h-4 mt-2 text-[11px] text-white/45">{feedback}</p>
-=======
-          <p className="min-h-4 mt-2 text-xs text-white/70">{feedback}</p>
->>>>>>> 1b2e7ee (Add share/export as PNG feature)
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
