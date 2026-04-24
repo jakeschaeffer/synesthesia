@@ -89,11 +89,6 @@ body {
   margin: 0;
   white-space: nowrap;
 }
-.mast-title .amp {
-  font-style: italic;
-  color: var(--accent);
-  font-weight: 300;
-}
 .profile-chip {
   cursor: pointer;
   text-decoration: underline;
