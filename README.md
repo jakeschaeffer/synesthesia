@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# Synesthesia Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Some people hear middle C and see violet. Some see the letter *A* as red, always, the way other people know that fire is hot. Grapheme-color synesthesia — the experience of letters and numbers carrying color — is real, common, and deeply personal. No two people share exactly the same alphabet.
 
-Currently, two official plugins are available:
+This is a tool for mapping yours.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Type a word. Watch its colors spill across the spectrogram. Click any letter in the atlas to dial in the hue, saturation, and lightness until it feels right. Save the result as a profile, share a word with a friend, or export your whole alphabet.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What it does
 
-## Expanding the ESLint configuration
+**Type** — a word, a name, a phrase. The color bar above renders a chromatic spectrogram of it in real time, blending adjacent letter-colors according to a slider you control.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Edit** — click any letter in the spectrogram bar, or click any chip in the alphabet grid below. The nudger panel opens with three live-gradient sliders: hue, saturation, lightness. The preview swatch and hex readout update as you drag.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**Save** — your colors are stored in a profile, auto-saved to your browser. You can keep multiple profiles — one for yourself, one for a partner whose alphabet you want to see.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**Share** — generate a link that encodes a single word's colors, or export your entire profile as a URL or `.json` file. Recipients can import it and see exactly what you see.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Stack
+
+React 19 · TypeScript · Vite · Zustand (persist) · culori (color math) · Tailwind CSS 4 · Google Fonts (Fraunces, Instrument Serif, JetBrains Mono)
+
+No back-end. Everything lives in `localStorage`.
+
+---
+
+## Development
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build    # production bundle
+npm run lint     # eslint
+npm run test     # vitest
 ```
+
+---
+
+## Docs
+
+- **[DESIGN.md](DESIGN.md)** — full design system reference: palette, typography, components, interaction patterns
+- **[TODOS.md](TODOS.md)** — open work items

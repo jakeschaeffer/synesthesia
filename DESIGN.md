@@ -1,198 +1,217 @@
-# Synesthesia — Atlas · Design System
+# Synesthesia Visualizer · Design System
 
-"Atlas" is the current incarnation of Synesthesia: a cream-paper editorial / letterpress field guide to seeing letters. It replaces the earlier dark dashboard (Radix dialogs, SplitScreen, CanvasRenderer) entirely. Every token below lives in [src/index.css](src/index.css); every component referenced lives directly under [src/components/](src/components/).
+A cream-paper, editorial / letterpress field guide. No dark mode, no cards, no modals-via-Radix. Everything is ink on paper — borders, rules, and type. All tokens live in [src/index.css](src/index.css); all components directly under [src/components/](src/components/).
+
+---
 
 ## Palette
 
-All tokens are CSS custom properties on `:root` in [src/index.css](src/index.css).
+CSS custom properties on `:root`.
 
 | Token        | Value     | Role                                                                                |
 | ------------ | --------- | ----------------------------------------------------------------------------------- |
-| `--paper`    | `#f3ecde` | Base paper. App background, default `.btn`, modal fill.                             |
-| `--paper-2`  | `#ece2ce` | Inset paper. Spectrogram bar, share preview, inputs, `.new-profile-row`.            |
-| `--ink`      | `#1a1612` | Primary ink. All text, rules, borders, `.btn.solid` fill.                           |
-| `--ink-soft` | `#3a332a` | Softer ink. Secondary copy, tagline, readout values.                                |
-| `--rule`     | `#1a1612` | Reserved alias for ink, for future rule-color overrides.                            |
-| `--muted`    | `#8a7f6b` | Quiet metadata: section-label body, tick labels, meta lines.                        |
-| `--accent`   | `#b0442c` | Red accent: caret, `§` numerals, modal label, `.btn.accent`, masthead em-dash, active-profile tag. |
+| `--paper`    | `#f3ecde` | Base paper. App background, default button fill, modal fill.                        |
+| `--paper-2`  | `#ece2ce` | Inset paper. Spectrogram bar, share preview, text inputs, new-profile row.          |
+| `--ink`      | `#1a1612` | Primary ink. Text, rules, borders, `.btn.solid` fill.                               |
+| `--ink-soft` | `#3a332a` | Softer ink. Secondary copy, readout values, masthead tagline.                       |
+| `--rule`     | `#1a1612` | Alias for ink, reserved for future rule-color overrides.                            |
+| `--muted`    | `#8a7f6b` | Quiet metadata: section-label text, tick labels, blend-row end-labels.              |
+| `--accent`   | `#b0442c` | Red. Caret, active-profile tag, `.btn.accent`, modal label kicker, active chip outline. |
 
-The `<body>` layers two radial glows (warm amber top-left, red-brown bottom-right) plus an SVG turbulence noise over `--paper` for a printed feel.
+The `<body>` layers two radial glows (warm amber top-left, red-brown bottom-right) plus an inline SVG turbulence noise over `--paper` for a printed feel. Scrollbar thumbs are `rgba(26,22,18,.2)` on transparent.
+
+---
 
 ## Typography
 
-Three families loaded in `index.html`. Roles do not mix.
+Three families, each with a single job. Loaded from Google Fonts in `index.html`.
 
-| Family              | Used for                                                                                                    |
-| ------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Fraunces**        | Editorial copy and display italics. Masthead title (`opsz 144`, `SOFT 100`), section `<h2>`/`<h3>`, profile names, suggestion chips, readout values. Body uses `font-feature-settings: "ss01","ss02","liga"`. |
-| **Instrument Serif** | Large glyphs only: the type input, Nudger preview swatch, atlas chip letter, share-preview word, spectrogram word-echo. Always ≥ 22 px. |
-| **JetBrains Mono**  | All UI chrome: buttons, section labels, HSL readouts, tick labels, meta lines, `.label` kickers. Always uppercase with `.1em`–`.28em` letter-spacing. |
+| Family              | Role                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| **Fraunces**        | Editorial and display. Masthead title (variable-font: `opsz 144`, `SOFT 100`), section `<h2>`/`<h3>`, profile names, blend-apparatus question, readout values. `font-feature-settings: "ss01","ss02","liga"` on `<body>`. |
+| **Instrument Serif** | Large glyphs only. Type input, nudger preview swatch, atlas chip letter, share-preview word, spectrogram word-echo. Always ≥ 22 px. |
+| **JetBrains Mono**  | All UI chrome. Buttons, section labels, HSL readouts, tick labels, metadata, modal label kickers. Always uppercase with `.1em`–`.28em` letter-spacing. |
 
-Key display sizes (all from `src/index.css`):
+Key display sizes:
 
-- Masthead title: `clamp(48px, 7.2vw, 108px)` italic
-- Type input: `clamp(52px, 9vw, 140px)`
-- Atlas `<h2>`: 38 px italic
-- Modal `<h2>`: 34 px italic
-- Nudger preview glyph: 88 px
-- Share-preview word: `clamp(36px, 5vw, 64px)`
+| Element              | Size                       |
+| -------------------- | -------------------------- |
+| Masthead title       | `clamp(48px, 7.2vw, 108px)` italic |
+| Type input           | `clamp(52px, 9vw, 140px)` |
+| Atlas `<h2>`         | 38 px italic               |
+| Blend question       | 16 px italic (Fraunces)    |
+| Modal `<h2>`         | 34 px italic               |
+| Nudger preview glyph | 88 px                      |
+| Share-preview word   | `clamp(36px, 5vw, 64px)`  |
+
+---
 
 ## Layout
 
-The whole app is a single vertical column.
+Single vertical column. No split screen.
 
 - `.page` — `max-width: 1360px`, padding `36px 48px 120px`, centered.
-- Flow: **Masthead → TypeStage (§ 01) → SpectrogramBar → ControlsPanel (§ 02–04 + § 05) → AtlasGrid (§ 06) → footer**.
+- Top-to-bottom flow: **Masthead → TypeStage → SpectrogramBar (+ blend + share) → ControlsPanel (Nudger) → AtlasGrid → footer.**
 - Breakpoints:
-  - `≤ 1100px` — atlas grid drops from 12 → 9 columns.
-  - `≤ 900px` — controls grid collapses from `1.2fr 1fr` to 1 column (Nudger goes below the slider/buttons).
-  - `≤ 700px` — page padding shrinks; masthead stacks into one column, title left-aligned at 64 px; atlas grid drops to 6 columns; atlas head stacks.
+  - `≤ 1100px` — atlas grid: 12 → 9 columns.
+  - `≤ 900px` — controls: `1.2fr 1fr` → 1 column.
+  - `≤ 700px` — page padding shrinks; masthead stacks to single column, title left-aligned at 64 px; atlas grid → 6 columns; atlas head stacks; `.bar-controls` stacks vertically.
 
-## Sections
-
-The page is numbered like a printed field guide. Each uses `.section-label`: a 22-px ink rule, a red `.num` (`§ 01` etc.), then a wide-tracked monospaced name.
-
-| §    | Name               | Component                                                        |
-| ---- | ------------------ | ---------------------------------------------------------------- |
-| 01   | The Utterance      | [TypeStage.tsx](src/components/TypeStage.tsx)                    |
-| 02   | Blend Apparatus    | [ControlsPanel.tsx](src/components/ControlsPanel.tsx)            |
-| 03   | Specimen Controls  | [ControlsPanel.tsx](src/components/ControlsPanel.tsx)            |
-| 04   | Share & Export     | [ControlsPanel.tsx](src/components/ControlsPanel.tsx)            |
-| 05   | The Nudger         | [NudgerEditor.tsx](src/components/NudgerEditor.tsx)              |
-| 06   | The Atlas          | [AtlasGrid.tsx](src/components/AtlasGrid.tsx)                    |
+---
 
 ## Components
 
 ### Masthead — [Masthead.tsx](src/components/Masthead.tsx)
-Three-column grid (`1fr auto 1fr`) bottom-ruled with a double line. Left: tagline *"A Field Guide to / Seeing Letters."*. Center: `Synesthesia — Atlas` — the em-dash is the `.amp` span in accent red, 300-weight italic. Right: `{profile}'s palette` over today's date. A `.mast-sub` row below holds *Grapheme → Color Index*, a dot-separated hint (*Type, hear the palette*), and a `Manage profile →` button (`.profile-chip`, link-style, accent on hover).
+
+Three-column grid (`1fr auto 1fr`) bottom-ruled with a double line. Left: *"Type letters, see colors."* in `--ink-soft`. Center: `Synesthesia` + italic `Visualizer` (`clamp(48px, 7.2vw, 108px)`). Right: `{profile}'s palette` and a `Manage profile →` link-style button (`.profile-chip`, accent on hover) that opens the profile modal.
+
+The masthead has no subtitle row or date — just the three columns.
 
 ### TypeStage — [TypeStage.tsx](src/components/TypeStage.tsx)
-`.typebox` with a hint label (*Type a word, phrase, or name*) notched into its top rule. `.type-input` is borderless Instrument Serif, caret colored with `--accent`, placeholder italic at 22% ink opacity. Below sits `.suggest` — monospaced `try:` label, then six italic Fraunces chips with dotted underlines that turn accent on hover: **Monday, thunder, aubergine, 42 cathedrals, saudade, your name**. The input autofocuses 400 ms after mount, unless a `.modal-backdrop` is currently open.
+
+`.typebox` with a notched hint label (*"Type a word, phrase, or name"*) set into its top rule. `.type-input` is borderless Instrument Serif filling the box, caret in `--accent`, placeholder italic at 22% ink opacity.
+
+Below the typebox: `.suggest` — a monospaced `try:` label followed by six italic Fraunces chips with dotted underlines that turn accent on hover: **Monday, thunder, aubergine, 42 cathedrals, saudade, your name.** Clicking a chip sets the text and re-focuses the input.
+
+The input autofocuses 400 ms after mount, selecting all existing text. Focus is skipped if a `.modal-backdrop` is open.
 
 ### SpectrogramBar — [SpectrogramBar.tsx](src/components/SpectrogramBar.tsx)
-Caption row above the bar: `Fig. A · Chromatic Spectrogram`, the word echoed in Instrument Serif italic 22 px (or `—` when empty), and `Blend {pct}%`. Bar is 120 px tall, 1-px ink border, `--paper-2` fill, subtle drop shadow. The filled gradient comes from `computeGradientStops` / `stopsToLinearGradient` in [gradientCalculation.ts](src/utils/gradientCalculation.ts). A multiply-blended SVG grain sits on top at `.35` opacity. Character tick cells render only when the filtered word length is 1–28 chars; spaces render as `·`.
+
+Three stacked zones:
+
+**Caption** — `.bar-caption` shows the word echoed in Instrument Serif italic 22 px (or `—` when empty).
+
+**Bar** — 120 px tall, 1-px ink border, `--paper-2` fill, subtle drop shadow. Gradient from `computeGradientStops` / `stopsToLinearGradient`. A multiply-blended SVG grain overlay at `.35` opacity. When the word is 1–28 chars, tick cells render per character; spaces become `·`. **The entire bar is clickable** — clicking calculates which character the click landed on (by horizontal ratio) and calls `setEditorChar`, opening that letter in the Nudger. Individual tick cells are `<button>`s with `aria-label`s; spaces are disabled.
+
+**Controls row** (`.bar-controls`) — below the bar, flex row space-between:
+- Left: `.blend-inline` — a Fraunces italic question (*"How much do the letters bleed into one another?"*) above a four-column row: `Hard` label, `.ink.mini` range slider (0–100, maps to 0..1 `bleed`), `Bled` label, percentage readout.
+- Right: `☍ Share This Word` button (`.btn.solid`, disabled until the word is non-empty).
+
+On mobile (≤ 700px), `.bar-controls` stacks vertically; the share button aligns to the right.
 
 ### ControlsPanel — [ControlsPanel.tsx](src/components/ControlsPanel.tsx)
-Two-column grid (`1.2fr 1fr`, collapsing to one column ≤ 900 px), separated from the stage by a 1-px ink top-rule. Left column hosts § 02 / § 03 / § 04; right column is the Nudger. Palette biases come from [palettes.ts](src/utils/palettes.ts) — buttons are labelled:
 
-| Button label         | `PaletteBias` value |
-| -------------------- | ------------------- |
-| Warm Bias            | `warm`              |
-| Cool Bias            | `cool`              |
-| High Saturation      | `candy`             |
-| Faded / Pastel       | `faded`             |
-
-"Reroll Typed Letters" is the only `.btn.accent` — it rerolls only the unique a–z / 0–9 chars currently in the input (falls back to `rerollAll` if none).
+Thin wrapper — renders the `.controls` section containing only `<NudgerEditor />`. The grid layout (`1.2fr 1fr`, collapsing ≤ 900 px) still applies for future use.
 
 ### NudgerEditor — [NudgerEditor.tsx](src/components/NudgerEditor.tsx)
-Ink-bordered card with a `.corner` tag in the top-right (`Glyph /a/` when editing, `—` when idle). Empty state: `.editor.empty .editor-body` drops to `opacity: .35`, `filter: saturate(.2)`, pointer-events none.
 
-Top row (`.editor-top`) holds a 128×128 swatch displaying the glyph at 88 px in Instrument Serif, next to a `.readout` listing **Glyph**, **Hex**, **HSL** in a `k` / `v` pair (monospaced uppercase key, 18-px italic Fraunces value). `.hex` value uses monospaced 20 px.
+Ink-bordered `.editor` card with a `.corner` label top-right (`Glyph /a/` when editing, `—` when idle). Section label: *"The Nudger."*
 
-Three `.nudge-row`s (`72px label | 1fr slider | auto value`) follow — Hue 0–360, Saturation 0–100, Lightness 5–92. Each `.rslider` is 14 px tall, bordered, with its track background set inline to a live HSL gradient of the relevant axis at the other two axes' current values (hue track shows a full rainbow at the current S/L; saturation track runs grey→saturated at the current H/L; lightness track runs near-black→mid→near-white at the current H/S).
+**Empty state** — `.editor.empty .editor-body` renders at `opacity: .35`, `filter: saturate(.2)`, pointer-events none.
 
-Footer `.btn-row`: `↻ Reroll this one`, `Reset` (restores the color captured at the moment this char was selected, via `preEditRef`), `Done` (`.btn.solid`, clears `editorChar`).
+**Top row** (`.editor-top`) — 128×128 swatch (background: the char's hex, text color flipped to `#f6efe0` when `color.l < 55`) displaying the glyph at Instrument Serif 88 px, beside a `.readout` listing **Glyph / Hex / HSL** as `k` (monospaced uppercase muted) / `v` (18 px italic Fraunces) pairs.
+
+**Three `.nudge-row`s** — Hue 0–360°, Saturation 0–100%, Lightness 5–92%. Each `.rslider` (14 px tall, 1-px ink border, 10×22 paper thumb) gets its `background` set inline to a live gradient of that axis at the other two axes' current values.
+
+**Footer** — `↻ Reroll this one` · `Reset` (restores color from when this char was selected) · `Done` (`.btn.solid`, calls `setEditorChar(null)`).
 
 ### AtlasGrid — [AtlasGrid.tsx](src/components/AtlasGrid.tsx)
-Separated from the controls by a 2-px ink rule. `.atlas-head` pairs the § 06 label + `<h2>` (*Every letter, every digit, its own voice.*) with a right-aligned meta line: `A–Z · 0–9 · [click to edit pill]`.
 
-`.atlas-grid` is 12 columns (9 at ≤ 1100 px, 6 at ≤ 700 px), 6-px gap. Each `<button>` is a `.chip` with `aspect-ratio: 3/4`, 1-px ink border, background set inline to the char's hex. `.g` holds the glyph in Instrument Serif 30 px top-left; `.n` holds the hex in JetBrains Mono 8.5 px bottom-right. See *Chips & swatches* below for `data-lum` / `.active`. Each chip carries `aria-label="Edit color for {X}"`.
+Separated from the controls by a 2-px ink rule. Header: *"The Atlas"* section label + `<h2>` *"Every letter, every digit."* + right-aligned meta `A–Z · 0–9 · [click to edit pill]`.
+
+Twelve-column chip grid (9 cols ≤ 1100 px, 6 cols ≤ 700 px), 6-px gap. Each `<button>` chip is `aspect-ratio: 3/4`, background = the char's hex, `.g` (Instrument Serif 30 px, top-left) + `.n` (JetBrains Mono 8.5 px hex, bottom-right). Clicking calls `setEditorChar` and scrolls attention to the Nudger. See *Chips* below.
+
+Below the grid: `⤓ Export Profile` button (`.btn.solid`).
 
 ### Modal — [Modal.tsx](src/components/Modal.tsx)
-Shared wrapper for all three modals. Rendered **conditionally** (`{open && <Modal …/>}`) — there is no `open` prop, no portal, no Radix. Dismissal:
 
-- **Escape key** — global `window` `keydown` listener in a `useEffect`.
-- **Backdrop click** — `onClick` on `.modal-backdrop` fires `onClose` only when `e.target === e.currentTarget` (ignores clicks inside the dialog).
-- **`Close ✕`** button in `.modal-head`.
+Shared wrapper. Rendered **conditionally** in `App.tsx` — no `open` prop, no portal. Only one modal is open at a time.
 
-Structure: `.modal-backdrop` is fixed, `rgba(26,22,18,.55)` + `backdrop-filter: blur(4px)`, `fadeIn` 0.2 s. `.modal` is `min(680px, 100%)` wide, `max-height: 90vh`, bordered, paper-filled, `popIn` 0.28 s cubic-bezier(.2,.8,.2,1). `.modal-head` pairs an accent-colored monospaced `.label` (*§ Profiles*, *§ Share one word*, *§ Export full profile*) with a 34-px italic `<h2>`; `.modal-body` contains `.field`s and `.btn-row`s. Optional `.modal-body p.lede` is 15-px Fraunces at 58 ch max-width.
+Dismissal: **Escape** (global `keydown`), **backdrop click** (`e.target === e.currentTarget` guard), **`Close ✕`** button.
+
+Structure: `.modal-backdrop` fixed, `rgba(26,22,18,.55)` + `blur(4px)`, `fadeIn` 0.2 s. `.modal` paper card `min(680px, 100%)` wide, `max-height: 90vh`, bordered, `popIn` 0.28 s. `.modal-head`: accent monospaced `.label` kicker + 34 px italic `<h2>` + close button. `.modal-body`: `.lede` (15 px Fraunces, ≤58 ch) + `.field`s + `.btn-row`s.
 
 ### ProfileManagerModal — [ProfileManagerModal.tsx](src/components/ProfileManagerModal.tsx)
-`.profile-list` of `.profile-row`s (`24px dots | 1fr name+meta | auto rename | auto delete`). Each row shows a 4×2 grid of 6-px squares sampled from `a e i o s t r n`, the name in Fraunces italic 18 px with an accent `Active` tag when current, and a meta line of date + first 8 chars of the id. Rows are clickable / Enter-Space keyable for `loadProfile`; Rename/Delete use `.rowbtn` (`.danger` hover turns accent). `.new-profile-row` is pinned to the bottom of the list: name input + `+ Create fresh` (`.btn.solid`). Below, a second `.field` accepts a pasted share-code or `.json` file. Delete is blocked when only one profile remains.
+
+Label: *§ Profiles.* Profile list rows: 4-col (`24px dot-preview | 1fr name+meta | Rename | Delete`). Dot preview samples chars `a e i o s t r n` as 6×6 colored squares. Active row background: `rgba(accent, .08)`. Rename uses `window.prompt`; delete uses `window.confirm` and is blocked when only one profile remains. New-profile row: text input + `+ Create fresh`. Below: paste-a-code textarea + `Load .json file`.
 
 ### ShareWordModal — [ShareWordModal.tsx](src/components/ShareWordModal.tsx)
-Word input + live `.share-preview` card (monospaced "Preview" kicker, the word rendered letter-by-letter in Instrument Serif colored per the map, a 36-px `.bar-mini` showing the gradient). Read-only `.link-textarea` holds the `buildShareUrl(encodeWordCode(...))` URL. Two buttons: `⎘ Copy link` (`.btn.solid`) and `⎘ Copy as SVG` (`.btn`, disabled while the word is blank). The SVG export is a single-line strip: 40-px-wide × 80-px-tall rects per char, each with the letter centered, `font-family: Georgia,serif`, italic 32 px, text color flipped to `#f6efe0` when the chip is dark (`color.l < 55`).
+
+Label: *§ Share one word.* Word input → live preview (per-letter Instrument Serif colored from the map + 36 px mini-bar gradient) → read-only link textarea → `⎘ Copy link` + `⎘ Copy as SVG`. SVG: 40×80-per-letter rects, Georgia italic 32 px, text color auto-flipped based on luminance.
 
 ### ExportProfileModal — [ExportProfileModal.tsx](src/components/ExportProfileModal.tsx)
-Name input (defaults to the active profile's name), the `encodeProfileCode` share URL, and `⎘ Copy link` / `⤓ Download .json` (via [profileTransfer.ts](src/utils/profileTransfer.ts)). JSON filename is slugified: `{name}.synesthesia.json`.
+
+Label: *§ Export full profile.* Name input (defaults to active profile) → shareable link → `⎘ Copy link` + `⤓ Download .json`. JSON filename: `{slugified-name}.synesthesia.json`.
 
 ### Toast — [Toast.tsx](src/components/Toast.tsx) + [useToast.ts](src/hooks/useToast.ts)
-Single fixed pill bottom-center. Ink background, paper text, JetBrains Mono 11 px, `.18em` uppercase. Driven by a module-level `showToast(msg)` the rest of the app calls directly (no props). Fades + slides via a toggled `.show` class; `role="status"` / `aria-live="polite"`.
+
+Fixed bottom-center pill. Ink fill, paper text, JetBrains Mono 11 px uppercase. Called via `showToast(msg)` anywhere in the codebase. Slides and fades via a toggled `.show` class. `role="status"` / `aria-live="polite"`.
+
+---
 
 ## Buttons
 
-All buttons share `.btn` — JetBrains Mono 10.5 px, `.2em` letter-spacing, uppercase, 10 × 14 padding, 1-px border, sharp corners (`border-radius: 0`), 0.15 s background/color transition.
+`.btn` — JetBrains Mono 10.5 px, `.2em` letter-spacing, uppercase, `10px 14px` padding, 1-px border, sharp corners, 0.15 s transition.
 
-| Variant         | Default                                    | Hover                                          |
-| --------------- | ------------------------------------------ | ---------------------------------------------- |
-| `.btn` (base)   | paper / ink / ink border                   | Ink fill, paper text                           |
-| `.btn.accent`   | paper / accent text / accent border        | Accent fill, paper text, accent border         |
-| `.btn.solid`    | ink fill, paper text                       | Accent fill, **accent border**, paper text     |
-| `:disabled`     | `opacity: .45`, `cursor: not-allowed`      | (no hover response)                            |
+| Variant       | Default                             | Hover                                      |
+| ------------- | ----------------------------------- | ------------------------------------------ |
+| `.btn`        | paper bg / ink text / ink border    | Ink fill, paper text                       |
+| `.btn.accent` | paper bg / accent text / accent border | Accent fill, paper text                 |
+| `.btn.solid`  | Ink fill / paper text               | Accent fill, accent border, paper text     |
+| `:disabled`   | `opacity: .45` / `cursor: not-allowed` | No hover                                |
 
-Scoped variants:
-- `.rowbtn` — smaller (9.5 px, 4 × 8 padding) for profile-row actions. `.rowbtn.danger:hover` turns accent.
-- `.profile-chip` — borderless, underlined, link-style (masthead "Manage profile").
-- `.modal-close` — small bordered button with the same hover as `.btn`.
+Scoped variants: `.rowbtn` (9.5 px, 4×8 padding, profile-list actions; `.danger` hover → accent). `.profile-chip` (borderless, underlined link style, masthead). `.modal-close` (small bordered, top-right of modal head).
+
+---
 
 ## Modal pattern
 
-- **Conditional mount, not an `open` prop.** `App.tsx` does `{profileOpen && <ProfileManagerModal …/>}`; close callbacks flip the boolean. When the modal isn't rendered, there is no backdrop in the DOM.
-- **Escape closes** (global `keydown` listener registered on mount).
-- **Backdrop click closes** via the `e.target === e.currentTarget` guard — clicks inside `.modal` bubble up but are ignored.
-- **Top-right `Close ✕`** for discoverability.
-- `role="dialog"` + `aria-label={title}`.
-- One `Modal` instance at a time — the three modals are mutually exclusive in `App.tsx`.
-- Content inside follows the `.modal-head` (label + h2 + close) / `.modal-body` (lede + fields + btn-row) pattern.
+- Conditional mount: `{open && <Modal …/>}` — no DOM overhead when closed.
+- Escape key and backdrop click both call `onClose`; they're the same function.
+- Backdrop guard: `e.target === e.currentTarget` prevents bubbled clicks from closing the dialog.
+- `role="dialog"` + `aria-label={title}` on `.modal`.
+- One modal open at a time — three boolean flags in `App.tsx`.
 
-## Chips & swatches
+---
 
-`.chip` is the atlas unit — a `<button>` colored with the glyph's hex.
+## Chips
 
-- **`data-lum`** is set by the component to `"dark"` (`color.l < 55`) or `"light"`. The CSS rule `.chip[data-lum="dark"] .g, .chip[data-lum="dark"] .n` flips glyph + hex label text to `#f6efe0` so letters remain readable on any hex the user picks.
-- **`.chip.active`** (set when the Nudger is editing this char) applies a 2-px ink outline with 2-px offset.
-- **Hover** lifts 2 px, scales 1.02, adds a 10–20 px ink shadow, raises `z-index`.
-- **Mount animation** — `popIn` keyframe (`scale(.9) → 1`, `opacity 0 → 1`) over 0.35 s.
+`.chip` — `<button>`, `aspect-ratio: 3/4`, background = hex, 1-px ink border.
 
-The same luminance-flip logic is reused in:
-- Nudger preview swatch — inline `color` computed from `isDark`.
-- Share-preview word letters — per-letter `color` set from `colorMap[char].hex`.
-- Share-word SVG export — text `fill` flipped based on `color.l < 55`.
+- `data-lum="dark"` (set when `color.l < 55`) flips `.g` and `.n` text to `#f6efe0` so the glyph label stays legible on any hex.
+- `.chip.active` — 2-px ink outline, 2-px offset. Set while the Nudger is editing that char.
+- Hover — lifts 2 px, scales 1.02, ink shadow, `z-index` raised.
+- Mount — `popIn` keyframe (scale .9 → 1, opacity 0 → 1, 0.35 s).
+
+The same luminance flip (`color.l < 55` → `#f6efe0`) is applied in the Nudger swatch, share-preview letters, and SVG export text.
+
+---
 
 ## Blend slider
 
-- **Store state**: `gradientSettings.bleed` on the Zustand store, `0..1`, default `0.35` ([useSynesthesiaStore.ts:41](src/store/useSynesthesiaStore.ts:41)). Persisted in `localStorage` under `synesthesia-storage`.
-- **UI range**: the `.ink`-styled `<input type="range">` in § 02 uses `min=0 max=100`. `ControlsPanel` bridges the two:
-  - `value={Math.round(settings.bleed * 100)}`
-  - `onChange={(e) => setBleed(+e.target.value / 100)}`
-- **Labels**: `Hard` at the left `.end`, `Bled` at the right `.end`, `{pct}%` readout on the far right. The same `{pct}%` is echoed in the SpectrogramBar caption.
-- **Track style** (`input[type="range"].ink`): 2-px ink line, 22 × 22 paper thumb with 2-px ink border and a 0 4px 10px ink shadow.
+Stored as `gradientSettings.bleed` (0..1, default `0.35`) in the Zustand store, persisted to `localStorage`. The UI slider uses `min=0 max=100`; `SpectrogramBar` bridges with `setBleed(+e.target.value / 100)`. Display value: `Math.round(settings.bleed * 100)` + `%`.
 
-The sibling `wordMix` setting exists on the store with a default of `0.0` but is not currently exposed in the Atlas UI.
+Track style (`.ink.mini`): 2-px ink line, 16×16 paper thumb, 1.5-px ink border. End labels: `Hard` / `Bled` in JetBrains Mono muted uppercase.
 
-## Empty & disabled states
+---
 
-- **No text typed** — SpectrogramBar word-echo renders `—`; ticks are hidden; gradient still fills the bar with the first chars of any previous state / default.
-- **No glyph selected in the Nudger** — `.editor.empty .editor-body` at 35 % opacity, desaturated, click-blocked; corner shows `—`; readouts show `—` / `#——————`.
-- **Share disabled** — `Copy link` and `Copy as SVG` get `:disabled` styling whenever the preview word is blank; link area shows `—`.
+## State
+
+Zustand store with `localStorage` persistence via `zustand/middleware`. Persisted keys: `profiles`, `activeProfileId`, `colorMap`, `gradientSettings`. `editorChar` is ephemeral (not persisted).
+
+Key store actions: `setText`, `setColorForChar`, `setBleed`, `createProfile`, `loadProfile`, `deleteProfile`, `renameProfile`, `rerollAll`, `rerollLetters`, `applyPaletteBias`, `setEditorChar`.
+
+---
 
 ## Animations
 
-All in [src/index.css](src/index.css) (lines 616–625 and inline on components):
-
-- `popIn` — 0.35 s cubic-bezier(.2,.8,.2,1) — chips on mount, modal dialog on open.
-- `fadeIn` — 0.2 s ease-out — modal backdrop.
+- `popIn` — scale(.9) → 1, opacity 0 → 1, 0.35 s cubic-bezier(.2,.8,.2,1). Chips on mount, modal dialog on open.
+- `fadeIn` — opacity 0 → 1, 0.2 s ease-out. Modal backdrop.
 - Button hover — 0.15 s background / color.
 - Chip hover — 0.18 s transform + shadow.
 - Toast — 0.2 s opacity + 0.25 s translateY.
 
+---
+
 ## Accessibility
 
-- All interactive surfaces are native `<button>` / `<input>` / `<textarea>` — no `div`-as-button.
-- Chips: `aria-label="Edit color for {X}"`.
-- Toast: `role="status"`, `aria-live="polite"`.
-- Modal: `role="dialog"`, `aria-label={title}`, Escape close.
-- Profile rows: `role="button"`, `tabIndex={0}`, Enter / Space invoke `loadProfile`.
-- Dark-chip text color is forced to `#f6efe0` so any user-chosen hex still meets the legibility bar.
+- All interactive surfaces are native `<button>` / `<input>` / `<textarea>`.
+- Chip buttons: `aria-label="Edit color for {X}"`.
+- Spectrogram tick buttons: `aria-label="Select {X} for nudging"` / `"Space"` when disabled.
+- Spectrogram bar: `role="group"` / `aria-label="Color strip"`.
+- Toast: `role="status"` / `aria-live="polite"`.
+- Modal: `role="dialog"` / `aria-label={title}`.
+- Profile rows: `role="button"` / `tabIndex={0}` / Enter-Space keydown handling.
+- Dark-chip text forced to `#f6efe0` to preserve contrast on user-chosen hex values.
 
-Open gaps — focus trapping inside modals, initial-focus hand-off, and a few touch-target nits — are tracked in [TODOS.md](TODOS.md).
+Open gaps (focus trap, touch targets, native dialogs) are tracked in [TODOS.md](TODOS.md).
