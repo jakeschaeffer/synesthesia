@@ -63,7 +63,7 @@ body {
 }
 .mast-left, .mast-right {
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -104,8 +104,17 @@ body {
 .profile-chip:hover { color: var(--accent); }
 
 @media (max-width: 920px) {
-  .masthead { grid-template-columns: 1fr; }
+  .masthead {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "tagline"
+      "profile";
+  }
+  .mast-title { grid-area: title; }
+  .mast-left { grid-area: tagline; }
   .mast-right {
+    grid-area: profile;
     text-align: left;
     align-items: flex-start;
     white-space: normal;
