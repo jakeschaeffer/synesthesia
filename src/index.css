@@ -466,10 +466,19 @@ input[type="range"].ink::-moz-range-thumb {
   text-transform: uppercase;
   padding: 6px 10px;
 }
-.editor.empty .editor-body {
-  opacity: .35;
-  pointer-events: none;
-  filter: saturate(.2);
+.editor.empty {
+  border-style: dashed;
+  border-color: rgba(26, 22, 18, .35);
+  padding: 28px 22px;
+}
+.editor.empty .empty-prompt {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: center;
 }
 .editor-top {
   display: flex;

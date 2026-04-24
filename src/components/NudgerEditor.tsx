@@ -64,34 +64,43 @@ export function NudgerEditor() {
 
   const done = () => setEditorChar(null);
 
+  if (!editorChar) {
+    return (
+      <div className="control-block">
+        <div className="section-label">The Nudger</div>
+        <div className="editor empty">
+          <p className="empty-prompt">
+            Click any letter in the atlas or the spectrogram bar to nudge its color.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="control-block">
       <div className="section-label">The Nudger</div>
-      <div className={`editor${editorChar ? '' : ' empty'}`}>
-        <div className="corner">
-          {editorChar ? `Glyph /${editorChar}/` : '—'}
-        </div>
+      <div className="editor">
+        <div className="corner">Glyph /{editorChar}/</div>
         <div className="editor-body">
           <div className="editor-top">
             <div
               className="preview"
               style={{
-                background: editorChar ? hex : '#ccc',
-                color: editorChar ? (isDark ? '#f6efe0' : '#1a1612') : 'var(--ink)',
+                background: hex,
+                color: isDark ? '#f6efe0' : '#1a1612',
               }}
             >
-              {editorChar ?? '?'}
+              {editorChar}
             </div>
             <div className="readout">
               <div className="pair">
                 <div className="k">Glyph</div>
-                <div className="v">{editorChar ? editorChar.toUpperCase() : '—'}</div>
+                <div className="v">{editorChar.toUpperCase()}</div>
               </div>
               <div className="pair">
                 <div className="k">Hex</div>
-                <div className="v hex">
-                  {editorChar ? hex.toUpperCase() : '#——————'}
-                </div>
+                <div className="v hex">{hex.toUpperCase()}</div>
               </div>
               <div className="pair">
                 <div className="k">HSL</div>
@@ -103,7 +112,7 @@ export function NudgerEditor() {
                     fontStyle: 'normal',
                   }}
                 >
-                  {editorChar ? `H ${h}°  S ${s}%  L ${l}%` : '—'}
+                  H {h}°  S {s}%  L {l}%
                 </div>
               </div>
             </div>
