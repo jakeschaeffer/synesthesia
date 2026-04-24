@@ -11,7 +11,7 @@ export function ControlsPanel() {
     <section className="controls">
       <div className="control-block">
         <div className="section-label">
-          <span className="num">§ 02</span> Blend Apparatus
+          <span className="num">02</span> Blend Apparatus
         </div>
         <h3>How much do the letters bleed into one another?</h3>
         <div className="slider-row">

@@ -5,8 +5,6 @@ interface MastheadProps {
   onManageProfile: () => void;
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 export function Masthead({ onManageProfile }: MastheadProps) {
   const activeProfileId = useSynesthesiaStore((s) => s.activeProfileId);
   const profiles = useSynesthesiaStore((s) => s.profiles);
@@ -19,11 +17,6 @@ export function Masthead({ onManageProfile }: MastheadProps) {
   const profileLabel = activeProfile
     ? `${activeProfile.name}'s palette`
     : 'Unnamed profile';
-
-  const dateStamp = useMemo(() => {
-    const d = new Date();
-    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  }, []);
 
   return (
     <header className="masthead">
@@ -38,14 +31,6 @@ export function Masthead({ onManageProfile }: MastheadProps) {
       <div className="mast-right">
         <span>{profileLabel}</span>
         <br />
-        <span>{dateStamp}</span>
-      </div>
-      <div className="mast-sub">
-        <span>Grapheme &rarr; Color Index</span>
-        <span>
-          <span className="dot"></span>Type, hear the palette
-          <span className="dot"></span>
-        </span>
         <button
           type="button"
           className="profile-chip"
@@ -53,6 +38,9 @@ export function Masthead({ onManageProfile }: MastheadProps) {
         >
           Manage profile →
         </button>
+      </div>
+      <div className="mast-sub">
+        <span>Type letters, see colors</span>
       </div>
     </header>
   );

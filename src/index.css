@@ -90,7 +90,7 @@ body {
 .mast-sub {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   font-family: "JetBrains Mono", monospace;
   font-size: 10.5px;
@@ -99,15 +99,7 @@ body {
   color: var(--ink-soft);
   padding-top: 12px;
 }
-.mast-sub .dot {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin: 0 10px;
-  vertical-align: middle;
-}
-.mast-sub .profile-chip {
+.profile-chip {
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -119,7 +111,7 @@ body {
   letter-spacing: inherit;
   text-transform: inherit;
 }
-.mast-sub .profile-chip:hover { color: var(--accent); }
+.profile-chip:hover { color: var(--accent); }
 
 /* ————— Sections ————— */
 .section-label {

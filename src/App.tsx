@@ -110,7 +110,7 @@ export default function App() {
           <span className="vein" />
           <span>{saveIndicator}</span>
           <span className="vein" />
-          <span>Synesthesia Visualizer · MMXXVI</span>
+          <span>Synesthesia Visualizer</span>
         </footer>
       </div>
 

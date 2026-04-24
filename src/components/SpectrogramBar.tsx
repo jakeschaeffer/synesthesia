@@ -58,11 +58,10 @@ export function SpectrogramBar({ onShareWord }: SpectrogramBarProps) {
   return (
     <div>
       <div className="bar-caption">
-        <span>Fig. A &nbsp;·&nbsp; Chromatic Spectrogram</span>
         <span className="word-echo">{wordEcho}</span>
         <span>Blend {blendPct}%</span>
       </div>
-      <div className="bar" onClick={handleBarClick} role="group" aria-label="Chromatic spectrogram">
+      <div className="bar" onClick={handleBarClick} role="group" aria-label="Color strip">
         <div className="gfill" style={{ background: gradient }} />
         {showTicks && (
           <div className="tick-row">

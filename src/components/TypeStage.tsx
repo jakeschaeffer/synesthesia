@@ -35,10 +35,6 @@ export function TypeStage({ onShareWord }: TypeStageProps) {
 
   return (
     <section className="stage">
-      <div className="section-label">
-        <span className="num">§ 01</span> The Utterance
-      </div>
-
       <div className="typebox">
         <span className="hint">Type a word, phrase, or name</span>
         <input

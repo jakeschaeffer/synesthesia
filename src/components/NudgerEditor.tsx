@@ -67,7 +67,7 @@ export function NudgerEditor() {
   return (
     <div className="control-block">
       <div className="section-label">
-        <span className="num">§ 05</span> The Nudger
+        <span className="num">05</span> The Nudger
       </div>
       <div className={`editor${editorChar ? '' : ' empty'}`}>
         <div className="corner">
