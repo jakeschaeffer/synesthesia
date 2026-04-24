@@ -14,9 +14,7 @@ export function AtlasGrid({ onExportProfile }: AtlasGridProps) {
     <section className="atlas">
       <div className="atlas-head">
         <div>
-          <div className="section-label">
-            <span className="num">06</span> The Atlas
-          </div>
+          <div className="section-label">The Atlas</div>
           <h2>Every letter, every digit.</h2>
         </div>
         <div className="meta">

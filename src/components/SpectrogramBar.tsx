@@ -13,6 +13,7 @@ export function SpectrogramBar({ onShareWord }: SpectrogramBarProps) {
   const text = useSynesthesiaStore((s) => s.text);
   const colorMap = useSynesthesiaStore((s) => s.colorMap);
   const settings = useSynesthesiaStore((s) => s.gradientSettings);
+  const setBleed = useSynesthesiaStore((s) => s.setBleed);
   const setEditorChar = useSynesthesiaStore((s) => s.setEditorChar);
 
   const filtered = useMemo(
@@ -59,7 +60,6 @@ export function SpectrogramBar({ onShareWord }: SpectrogramBarProps) {
     <div>
       <div className="bar-caption">
         <span className="word-echo">{wordEcho}</span>
-        <span>Blend {blendPct}%</span>
       </div>
       <div className="bar" onClick={handleBarClick} role="group" aria-label="Color strip">
         <div className="gfill" style={{ background: gradient }} />
@@ -84,7 +84,24 @@ export function SpectrogramBar({ onShareWord }: SpectrogramBarProps) {
         )}
         <div className="grain" />
       </div>
-      <div className="bar-actions">
+      <div className="bar-controls">
+        <div className="blend-inline">
+          <div className="blend-question">How much do the letters bleed into one another?</div>
+          <div className="blend-inline-row">
+            <span className="end">Hard</span>
+            <input
+              className="ink mini"
+              type="range"
+              min={0}
+              max={100}
+              value={blendPct}
+              onChange={(e) => setBleed(+e.target.value / 100)}
+              aria-label="Blend percentage"
+            />
+            <span className="end">Bled</span>
+            <span className="val">{blendPct}%</span>
+          </div>
+        </div>
         <button
           className="btn solid"
           type="button"

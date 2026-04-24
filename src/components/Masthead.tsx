@@ -20,17 +20,12 @@ export function Masthead({ onManageProfile }: MastheadProps) {
 
   return (
     <header className="masthead">
-      <div className="mast-left">
-        A Field Guide to
-        <br />
-        Seeing Letters.
-      </div>
+      <div className="mast-left">Type letters, see colors.</div>
       <h1 className="mast-title">
         Synesthesia <em>Visualizer</em>
       </h1>
       <div className="mast-right">
         <span>{profileLabel}</span>
-        <br />
         <button
           type="button"
           className="profile-chip"
@@ -38,9 +33,6 @@ export function Masthead({ onManageProfile }: MastheadProps) {
         >
           Manage profile →
         </button>
-      </div>
-      <div className="mast-sub">
-        <span>Type letters, see colors</span>
       </div>
     </header>
   );
