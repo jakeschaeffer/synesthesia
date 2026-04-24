@@ -997,4 +997,5 @@ input[type="range"].ink::-moz-range-thumb {
   .bar-controls .btn {
     align-self: flex-end;
   }
+  .chip .n { display: none; }
 }
