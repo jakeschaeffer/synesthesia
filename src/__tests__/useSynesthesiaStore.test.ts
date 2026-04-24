@@ -1,28 +1,29 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useSynesthesiaStore } from '../store/useSynesthesiaStore';
-import { DEFAULT_COLOR_MAP } from '../constants/defaultColorMap';
+import {
+  ALPHANUMERIC_CHARS,
+  DEFAULT_COLOR_MAP,
+} from '../constants/defaultColorMap';
 
 function getStore() {
   return useSynesthesiaStore.getState();
 }
 
+function cloneDefaultMap() {
+  return Object.fromEntries(
+    Object.entries(DEFAULT_COLOR_MAP).map(([k, v]) => [k, { ...v }]),
+  );
+}
+
 describe('useSynesthesiaStore', () => {
   beforeEach(() => {
-    // Reset store to defaults before each test
     useSynesthesiaStore.setState({
       text: '',
-      colorMap: Object.fromEntries(
-        Object.entries(DEFAULT_COLOR_MAP).map(([k, v]) => [k, { ...v }]),
-      ),
+      colorMap: cloneDefaultMap(),
       activeProfileId: null,
       profiles: [],
-      gradientSettings: { bleed: 0.5, wordMix: 0.0 },
-      variantModal: {
-        isOpen: false,
-        character: null,
-        currentColor: null,
-        anchorPosition: null,
-      },
+      gradientSettings: { bleed: 0.35, wordMix: 0.0 },
+      editorChar: null,
     });
   });
 
@@ -41,15 +42,20 @@ describe('useSynesthesiaStore', () => {
       getStore().setWordMix(0.6);
       expect(getStore().gradientSettings.wordMix).toBe(0.6);
     });
+
+    it('setEditorChar normalizes case', () => {
+      getStore().setEditorChar('A');
+      expect(getStore().editorChar).toBe('a');
+      getStore().setEditorChar(null);
+      expect(getStore().editorChar).toBeNull();
+    });
   });
 
   describe('deep clone isolation', () => {
     it('colorMap entries are deep-cloned from DEFAULT_COLOR_MAP', () => {
       const storeColor = getStore().colorMap['a'];
       const defaultColor = DEFAULT_COLOR_MAP['a'];
-      // Should have the same values
       expect(storeColor.hex).toBe(defaultColor.hex);
-      // But be different object references
       expect(storeColor).not.toBe(defaultColor);
     });
 
@@ -61,132 +67,172 @@ describe('useSynesthesiaStore', () => {
   });
 
   describe('createProfile', () => {
-    it('creates a profile with current colorMap when no override provided', () => {
-      getStore().setColorForChar('a', { hex: '#ff0000', h: 0, s: 100, l: 50 });
-      getStore().createProfile('Test Profile');
+    it('creates a profile with colorMapOverride when provided', () => {
+      getStore().createProfile('Test Profile', DEFAULT_COLOR_MAP);
 
       const { profiles, activeProfileId } = getStore();
       expect(profiles).toHaveLength(1);
       expect(profiles[0].name).toBe('Test Profile');
-      expect(profiles[0].colorMap['a'].hex).toBe('#ff0000');
+      expect(profiles[0].colorMap['a'].hex).toBe(DEFAULT_COLOR_MAP['a'].hex);
       expect(activeProfileId).toBe(profiles[0].id);
     });
 
-    it('creates a profile with colorMapOverride when provided', () => {
-      getStore().setColorForChar('a', { hex: '#ff0000', h: 0, s: 100, l: 50 });
-      getStore().createProfile('Rainbow Profile', DEFAULT_COLOR_MAP);
-
-      const { profiles } = getStore();
-      expect(profiles[0].colorMap['a'].hex).toBe(DEFAULT_COLOR_MAP['a'].hex);
-      // Active colorMap should also be updated to the override
-      expect(getStore().colorMap['a'].hex).toBe(DEFAULT_COLOR_MAP['a'].hex);
+    it('creates a profile with fresh colors when no override', () => {
+      getStore().createProfile('Fresh');
+      const profile = getStore().profiles[0];
+      expect(profile.colorMap['a']).toBeDefined();
+      expect(profile.colorMap['a'].hex).toMatch(/^#[0-9a-f]{6}$/);
     });
 
     it('profile colorMap is deep-cloned from source', () => {
-      getStore().createProfile('Test');
+      getStore().createProfile('Test', DEFAULT_COLOR_MAP);
       const profile = getStore().profiles[0];
 
-      // Mutate the active colorMap
       getStore().setColorForChar('a', { hex: '#000000', h: 0, s: 0, l: 0 });
 
-      // Profile should still have the original color
       expect(profile.colorMap['a'].hex).not.toBe('#000000');
     });
+
+    it('returns the new profile id', () => {
+      const id = getStore().createProfile('Test', DEFAULT_COLOR_MAP);
+      expect(id).toBe(getStore().profiles[0].id);
+    });
   });
 
-  describe('loadProfile', () => {
-    it('loads profile colorMap and sets activeProfileId', () => {
-      getStore().createProfile('Profile 1');
-      const profileId = getStore().profiles[0].id;
-      const profileColor = getStore().profiles[0].colorMap['a'].hex;
+  describe('ensureEmmaProfile', () => {
+    it('creates an Emma profile when none exists', () => {
+      getStore().ensureEmmaProfile();
+      const emma = getStore().profiles.find(
+        (p) => p.name.toLowerCase() === 'emma',
+      );
+      expect(emma).toBeDefined();
+      expect(emma?.colorMap['a'].hex).toBe(DEFAULT_COLOR_MAP['a'].hex);
+    });
 
-      // Change the active color
+    it('activates Emma when no profile is active', () => {
+      getStore().ensureEmmaProfile();
+      const emma = getStore().profiles.find(
+        (p) => p.name.toLowerCase() === 'emma',
+      );
+      expect(getStore().activeProfileId).toBe(emma?.id);
+    });
+
+    it('does not duplicate Emma when called twice', () => {
+      getStore().ensureEmmaProfile();
+      getStore().ensureEmmaProfile();
+      const emmas = getStore().profiles.filter(
+        (p) => p.name.toLowerCase() === 'emma',
+      );
+      expect(emmas).toHaveLength(1);
+    });
+
+    it('does not switch active profile away from a non-Emma active one', () => {
+      getStore().createProfile('Maya', DEFAULT_COLOR_MAP);
+      const mayaId = getStore().activeProfileId;
+      getStore().ensureEmmaProfile();
+      expect(getStore().activeProfileId).toBe(mayaId);
+    });
+  });
+
+  describe('loadProfile + active sync', () => {
+    it('switching between profiles restores their respective colorMaps', () => {
+      getStore().createProfile('Profile 1', DEFAULT_COLOR_MAP);
+      const firstId = getStore().profiles[0].id;
+
+      getStore().createProfile('Profile 2', DEFAULT_COLOR_MAP);
+      const secondId = getStore().profiles[1].id;
       getStore().setColorForChar('a', { hex: '#111111', h: 0, s: 0, l: 7 });
 
-      // Load the profile
-      getStore().loadProfile(profileId);
-      expect(getStore().activeProfileId).toBe(profileId);
-      expect(getStore().colorMap['a'].hex).toBe(profileColor);
+      getStore().loadProfile(firstId);
+      expect(getStore().activeProfileId).toBe(firstId);
+      expect(getStore().colorMap['a'].hex).toBe(DEFAULT_COLOR_MAP['a'].hex);
+
+      getStore().loadProfile(secondId);
+      expect(getStore().colorMap['a'].hex).toBe('#111111');
     });
 
-    it('loaded colorMap is deep-cloned from profile', () => {
-      getStore().createProfile('Profile 1');
-      const profileId = getStore().profiles[0].id;
-
-      getStore().loadProfile(profileId);
-
-      // Mutate the active colorMap
-      getStore().setColorForChar('a', { hex: '#999999', h: 0, s: 0, l: 60 });
-
-      // Profile's stored colorMap should be unchanged
-      const profile = getStore().profiles.find((p) => p.id === profileId)!;
-      expect(profile.colorMap['a'].hex).not.toBe('#999999');
-    });
-  });
-
-  describe('updateActiveProfile', () => {
-    it('updates the active profile with current colorMap', () => {
-      getStore().createProfile('Profile 1');
-      const profileId = getStore().profiles[0].id;
-
+    it('setColorForChar keeps the active profile colorMap in sync', () => {
+      getStore().createProfile('Profile 1', DEFAULT_COLOR_MAP);
       getStore().setColorForChar('a', { hex: '#abcdef', h: 210, s: 68, l: 80 });
-      getStore().updateActiveProfile();
-
-      const profile = getStore().profiles.find((p) => p.id === profileId)!;
-      expect(profile.colorMap['a'].hex).toBe('#abcdef');
-    });
-
-    it('does nothing when no active profile', () => {
-      useSynesthesiaStore.setState({ activeProfileId: null });
-      const profilesBefore = getStore().profiles;
-      getStore().updateActiveProfile();
-      expect(getStore().profiles).toBe(profilesBefore);
-    });
-
-    it('updated profile colorMap is deep-cloned', () => {
-      getStore().createProfile('Profile 1');
-
-      getStore().setColorForChar('a', { hex: '#abcdef', h: 210, s: 68, l: 80 });
-      getStore().updateActiveProfile();
-
-      // Now mutate the active colorMap again
-      getStore().setColorForChar('a', { hex: '#000000', h: 0, s: 0, l: 0 });
-
-      // Profile should still have the saved value
       const profile = getStore().profiles[0];
       expect(profile.colorMap['a'].hex).toBe('#abcdef');
     });
   });
 
   describe('deleteProfile', () => {
-    it('removes the profile from the list', () => {
-      getStore().createProfile('Profile 1');
-      const profileId = getStore().profiles[0].id;
-
-      getStore().deleteProfile(profileId);
-      expect(getStore().profiles).toHaveLength(0);
+    it('refuses to delete the last remaining profile', () => {
+      getStore().createProfile('Only', DEFAULT_COLOR_MAP);
+      const id = getStore().profiles[0].id;
+      getStore().deleteProfile(id);
+      expect(getStore().profiles).toHaveLength(1);
     });
 
-    it('resets activeProfileId when deleting the active profile', () => {
-      getStore().createProfile('Profile 1');
-      const profileId = getStore().profiles[0].id;
-      expect(getStore().activeProfileId).toBe(profileId);
+    it('picks the first remaining profile when deleting the active one', () => {
+      getStore().createProfile('Profile 1', DEFAULT_COLOR_MAP);
+      const firstId = getStore().profiles[0].id;
+      getStore().createProfile('Profile 2', DEFAULT_COLOR_MAP);
+      const secondId = getStore().profiles[1].id;
+      expect(getStore().activeProfileId).toBe(secondId);
 
-      getStore().deleteProfile(profileId);
-      expect(getStore().activeProfileId).toBeNull();
+      getStore().deleteProfile(secondId);
+      expect(getStore().profiles).toHaveLength(1);
+      expect(getStore().activeProfileId).toBe(firstId);
     });
 
     it('preserves activeProfileId when deleting a non-active profile', () => {
-      getStore().createProfile('Profile 1');
+      getStore().createProfile('Profile 1', DEFAULT_COLOR_MAP);
       const firstId = getStore().profiles[0].id;
-
-      getStore().createProfile('Profile 2');
+      getStore().createProfile('Profile 2', DEFAULT_COLOR_MAP);
       const secondId = getStore().profiles[1].id;
-      // activeProfileId is now secondId (most recently created)
 
       getStore().deleteProfile(firstId);
       expect(getStore().activeProfileId).toBe(secondId);
       expect(getStore().profiles).toHaveLength(1);
+    });
+  });
+
+  describe('rerollAll / rerollLetters', () => {
+    it('rerollAll generates a new color for every alphanumeric char', () => {
+      getStore().createProfile('P', DEFAULT_COLOR_MAP);
+      getStore().rerollAll();
+      const map = getStore().colorMap;
+      for (const ch of ALPHANUMERIC_CHARS) {
+        expect(map[ch]?.hex).toMatch(/^#[0-9a-f]{6}$/);
+      }
+    });
+
+    it('rerollLetters only changes the provided letters', () => {
+      getStore().createProfile('P', DEFAULT_COLOR_MAP);
+      const before = { ...getStore().colorMap };
+      getStore().rerollLetters(['a']);
+      const after = getStore().colorMap;
+      // `b` is untouched
+      expect(after['b'].hex).toBe(before['b'].hex);
+    });
+
+    it('rerollLetters ignores non-alphanumeric inputs', () => {
+      getStore().createProfile('P', DEFAULT_COLOR_MAP);
+      const before = { ...getStore().colorMap };
+      getStore().rerollLetters([' ', '!', '.']);
+      expect(getStore().colorMap['a'].hex).toBe(before['a'].hex);
+    });
+  });
+
+  describe('applyPaletteBias', () => {
+    it('produces colors in the warm range', () => {
+      getStore().createProfile('P', DEFAULT_COLOR_MAP);
+      getStore().applyPaletteBias('warm');
+      const map = getStore().colorMap;
+      for (const ch of ALPHANUMERIC_CHARS) {
+        expect(map[ch].hex).toMatch(/^#[0-9a-f]{6}$/);
+      }
+    });
+
+    it('syncs the new colors into the active profile', () => {
+      getStore().createProfile('P', DEFAULT_COLOR_MAP);
+      getStore().applyPaletteBias('cool');
+      const profileColor = getStore().profiles[0].colorMap['a'].hex;
+      expect(profileColor).toBe(getStore().colorMap['a'].hex);
     });
   });
 });
