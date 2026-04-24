@@ -22,17 +22,12 @@ export interface GradientSettings {
   wordMix: number;
 }
 
-export interface VariantModalState {
-  isOpen: boolean;
-  character: string | null;
-  currentColor: SynColor | null;
-  anchorPosition: { x: number; y: number } | null;
-}
-
 export interface GradientStop {
   offset: number;
   color: string;
 }
+
+export type PaletteBias = 'warm' | 'cool' | 'candy' | 'faded';
 
 export interface SynesthesiaState {
   text: string;
@@ -40,18 +35,20 @@ export interface SynesthesiaState {
   activeProfileId: string | null;
   profiles: Profile[];
   gradientSettings: GradientSettings;
-  variantModal: VariantModalState;
+  /** Character currently open in the Nudger editor. */
+  editorChar: string | null;
 
   setText: (text: string) => void;
   setColorForChar: (char: string, color: SynColor) => void;
   setBleed: (bleed: number) => void;
   setWordMix: (wordMix: number) => void;
-  createProfile: (name: string, colorMapOverride?: ColorMap) => void;
+  createProfile: (name: string, colorMapOverride?: ColorMap) => string;
   ensureEmmaProfile: () => void;
-  assignRainbowColorMap: () => void;
+  renameProfile: (profileId: string, name: string) => void;
   loadProfile: (profileId: string) => void;
   deleteProfile: (profileId: string) => void;
-  updateActiveProfile: () => void;
-  openVariantModal: (char: string, color: SynColor, position: { x: number; y: number }) => void;
-  closeVariantModal: () => void;
+  rerollAll: () => void;
+  rerollLetters: (letters: string[]) => void;
+  applyPaletteBias: (bias: PaletteBias) => void;
+  setEditorChar: (char: string | null) => void;
 }

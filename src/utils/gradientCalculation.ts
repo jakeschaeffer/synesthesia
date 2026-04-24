@@ -129,6 +129,19 @@ export function computeGradientStops(
   return stops;
 }
 
+export function stopsToLinearGradient(
+  stops: GradientStop[],
+  fallback = '#ece2ce',
+): string {
+  if (!stops.length) {
+    return `linear-gradient(90deg, ${fallback} 0%, ${fallback} 100%)`;
+  }
+  const parts = stops.map(
+    (s) => `${s.color} ${(s.offset * 100).toFixed(4)}%`,
+  );
+  return `linear-gradient(90deg, ${parts.join(', ')})`;
+}
+
 function clampOffset(v: number): number {
   return Math.max(0, Math.min(1, v));
 }

@@ -1,72 +1,132 @@
-import { useEffect, useState } from 'react';
-import { SplitScreen } from './components/layout/SplitScreen';
-import { GradientCanvas } from './components/visualization/GradientCanvas';
-import { TextInputArea } from './components/input/TextInputArea';
-import { GradientControls } from './components/controls/GradientControls';
-import { ProfileManager } from './components/profile/ProfileManager';
-import { ProfileLegendView } from './components/profile/ProfileLegendView';
-import { ColorVariantModal } from './components/color-picker/ColorVariantModal';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Masthead } from './components/Masthead';
+import { TypeStage } from './components/TypeStage';
+import { ControlsPanel } from './components/ControlsPanel';
+import { AtlasGrid } from './components/AtlasGrid';
+import { Toast } from './components/Toast';
+import { ProfileManagerModal } from './components/ProfileManagerModal';
+import { ShareWordModal } from './components/ShareWordModal';
+import { ExportProfileModal } from './components/ExportProfileModal';
 import { useSynesthesiaStore } from './store/useSynesthesiaStore';
-
-type EditorTab = 'typing' | 'legend';
+import { showToast } from './hooks/useToast';
+import {
+  decodeProfileCode,
+  decodeWordCode,
+} from './utils/shareCodes';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<EditorTab>('typing');
   const ensureEmmaProfile = useSynesthesiaStore((s) => s.ensureEmmaProfile);
+  const createProfile = useSynesthesiaStore((s) => s.createProfile);
+  const setText = useSynesthesiaStore((s) => s.setText);
+  const colorMap = useSynesthesiaStore((s) => s.colorMap);
+  const text = useSynesthesiaStore((s) => s.text);
+
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [saveIndicator, setSaveIndicator] = useState('Saved locally');
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     ensureEmmaProfile();
   }, [ensureEmmaProfile]);
 
+  // flash save indicator when colorMap changes
+  const firstRenderRef = useRef(true);
+  useEffect(() => {
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false;
+      return;
+    }
+    setSaveIndicator('Saving…');
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => setSaveIndicator('Saved locally'), 500);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [colorMap]);
+
+  // hash auto-import on first load
+  const hashImportRanRef = useRef(false);
+  useEffect(() => {
+    if (hashImportRanRef.current) return;
+    hashImportRanRef.current = true;
+    const raw = window.location.hash ? window.location.hash.slice(1) : '';
+    if (!raw) return;
+    try {
+      if (raw.startsWith('p1~')) {
+        const decoded = decodeProfileCode(raw);
+        const ok = window.confirm(
+          `Import profile "${decoded.name}"?\n\nThis will be added to your saved profiles and made active.`,
+        );
+        if (ok) {
+          createProfile(decoded.name || 'Shared', decoded.colorMap);
+          showToast(`Imported "${decoded.name || 'Shared'}"`);
+        }
+        window.history.replaceState(
+          null,
+          '',
+          window.location.pathname + window.location.search,
+        );
+      } else if (raw.startsWith('w1~')) {
+        const decoded = decodeWordCode(raw);
+        const ok = window.confirm(
+          `Open shared word "${decoded.word}"?\n\nIts colors will be loaded into a new profile so your active one isn't overwritten.`,
+        );
+        if (ok) {
+          const merged = { ...colorMap };
+          Object.entries(decoded.colorMap).forEach(([ch, c]) => {
+            merged[ch] = c;
+          });
+          createProfile(`Shared: "${decoded.word}"`, merged);
+          setText(decoded.word);
+          showToast('Opened shared word');
+        }
+        window.history.replaceState(
+          null,
+          '',
+          window.location.pathname + window.location.search,
+        );
+      }
+    } catch (e) {
+      console.warn('Hash import failed', e);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const openProfileManager = useCallback(() => setProfileOpen(true), []);
+  const openShareWord = useCallback(() => setShareOpen(true), []);
+  const openExportProfile = useCallback(() => setExportOpen(true), []);
+
   return (
     <>
-      <SplitScreen
-        top={<GradientCanvas />}
-        bottom={
-          <div className="h-full flex flex-col">
-            <div className="px-4 pt-3 pb-2 border-b border-white/5">
-              <div className="inline-flex rounded-xl bg-white/5 p-1 gap-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('typing')}
-                  className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                    activeTab === 'typing'
-                      ? 'bg-white/14 text-white'
-                      : 'text-white/55 hover:text-white/75'
-                  }`}
-                >
-                  Text View
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('legend')}
-                  className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                    activeTab === 'legend'
-                      ? 'bg-white/14 text-white'
-                      : 'text-white/55 hover:text-white/75'
-                  }`}
-                >
-                  Profile Legend
-                </button>
-              </div>
-            </div>
+      <div className="page">
+        <Masthead onManageProfile={openProfileManager} />
+        <TypeStage onShareWord={openShareWord} />
+        <ControlsPanel />
+        <AtlasGrid onExportProfile={openExportProfile} />
+        <footer className="foot">
+          <span>Printed on the browser</span>
+          <span className="vein" />
+          <span>{saveIndicator}</span>
+          <span className="vein" />
+          <span>Synesthesia Visualizer · MMXXVI</span>
+        </footer>
+      </div>
 
-            <div className="flex-1 min-h-0 flex flex-col">
-              {activeTab === 'typing' ? (
-                <>
-                  <TextInputArea />
-                  <GradientControls />
-                </>
-              ) : (
-                <ProfileLegendView />
-              )}
-            </div>
-
-            <ProfileManager onProfileCreated={() => setActiveTab('legend')} />
-          </div>
-        }
-      />
-      <ColorVariantModal />
+      {profileOpen && (
+        <ProfileManagerModal onClose={() => setProfileOpen(false)} />
+      )}
+      {shareOpen && (
+        <ShareWordModal
+          onClose={() => setShareOpen(false)}
+          initialWord={text}
+        />
+      )}
+      {exportOpen && (
+        <ExportProfileModal onClose={() => setExportOpen(false)} />
+      )}
+      <Toast />
     </>
   );
 }
