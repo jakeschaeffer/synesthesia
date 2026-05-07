@@ -106,7 +106,6 @@ export default function App() {
         <ControlsPanel />
         <AtlasGrid onExportProfile={openExportProfile} />
         <footer className="foot">
-          <span>Printed on the browser</span>
           <span className="vein" />
           <span>{saveIndicator}</span>
           <span className="vein" />
