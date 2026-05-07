@@ -50,9 +50,8 @@ function buildSharePreviewPng(
   chars.forEach((ch, i) => {
     const lo = ch.toLowerCase();
     const swatch = colorMap[lo];
-    const isDark = (swatch?.l ?? 50) < 55;
 
-    ctx.fillStyle = isDark ? '#f6efe0' : '#1a1612';
+    ctx.fillStyle = swatch?.hex ?? '#1a1612';
     ctx.font = "italic 42px 'Instrument Serif', 'Fraunces', Georgia, serif";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -87,11 +86,6 @@ export function ShareWordModal({ onClose, initialWord }: ShareWordModalProps) {
   const filtered = useMemo(
     () => [...word].filter((ch) => /[a-zA-Z0-9 ]/.test(ch)).join(''),
     [word],
-  );
-
-  const gradient = useMemo(
-    () => stopsToLinearGradient(computeGradientStops(filtered, colorMap, settings)),
-    [filtered, colorMap, settings],
   );
 
   const pngDataUrl = useMemo(
@@ -145,46 +139,21 @@ export function ShareWordModal({ onClose, initialWord }: ShareWordModalProps) {
       </div>
 
       <div className="share-preview">
-        <div
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            letterSpacing: '.2em',
-            color: 'var(--muted)',
-            textTransform: 'uppercase',
-          }}
-        >
-          Preview
-        </div>
-        <div className="word-big">
-          {word.trim() ? (
-            [...word].map((ch, i) => {
-              const lo = ch.toLowerCase();
-              const c = colorMap[lo]?.hex;
-              const displayChar = ch === ' ' ? '\u00A0' : ch;
-              return (
-                <span
-                  key={i}
-                  className="ltr"
-                  style={c ? { color: c } : undefined}
-                >
-                  {displayChar}
-                </span>
-              );
-            })
-          ) : (
-            '—'
-          )}
-        </div>
-        <div className="bar-mini">
-          <div
-            className="gf"
-            style={{
-              background: word.trim() ? gradient : 'transparent',
-            }}
+        {pngDataUrl ? (
+          <img
+            className="share-image"
+            src={pngDataUrl}
+            alt={`Share preview for "${word}"`}
           />
-        </div>
+        ) : (
+          <div className="link-textarea" style={{ margin: 0 }}>
+            Type a word or phrase to generate the share preview.
+          </div>
+        )}
       </div>
+      {pngDataUrl && (
+        <div className="share-image-hint">Right-click this preview to copy or save it.</div>
+      )}
 
       <div className="field">
         <label>Shareable link (contains only this word's colors)</label>
